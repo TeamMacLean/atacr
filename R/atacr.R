@@ -42,13 +42,13 @@ rename_sample_columns <- function(df, control_name){
 #' @export
 normalize <- function(df,control_name){
   ## expects a dataframe with columns:
-  ## sample, Bait, read_count, mean_coverage, BreadthCoverage
+  ## sample, bait, read_count, mean_coverage, BreadthCoverage
   ## Uses the control_name as a base set of values to normalize against
   df <- add_mean_read_count(df)
   control_df <- rename_control_columns(df, control_name)
   sample_df <- rename_sample_columns(df, control_name)
 
-  all_data <- dplyr::left_join(sample_df, control_df, by="Bait") %>%
+  all_data <- dplyr::left_join(sample_df, control_df, by="bait") %>%
     dplyr::arrange(sample) %>%
     dplyr::mutate(
       read_count_ratio = sample_bait_read_count/control_bait_read_count,
@@ -96,7 +96,7 @@ find_negative_control_baits <- function(df, breadth=80, mean_depth=1.2, max_samp
       b = ifelse( sample_bait_breadth < breadth & sample_bait_mean_coverage < mean_depth,
         TRUE, FALSE)
     ) %>%
-    dplyr::group_by(Bait) %>%
+    dplyr::group_by(bait) %>%
     dplyr::mutate( count = sum(b) )
 
   maximum = (max_sample_percent / 100) * dplyr::n_distinct(d$sample)
@@ -120,7 +120,7 @@ find_negative_control_baits <- function(df, breadth=80, mean_depth=1.2, max_samp
 all_versus_all_normalized_plot <- function(df){
   col_count <- dplyr::n_distinct(df$sample) + 1
   p <- df %>%
-    dplyr::select(Bait, sample, log_normalized_value) %>%
+    dplyr::select(bait, sample, log_normalized_value) %>%
     dplyr::mutate(log_normalized_value = ifelse(is.na(log_normalized_value),0, log_normalized_value)) %>%
     dplyr::mutate(log_normalized_value = ifelse(is.infinite(log_normalized_value),0, log_normalized_value)) %>%
     tidyr::spread(sample, log_normalized_value)  %>%
@@ -132,7 +132,7 @@ all_versus_all_normalized_plot <- function(df){
 all_versus_all_read_count_plot <- function(df){
   col_count <- dplyr::n_distinct(df$sample) + 1
   p <- df %>%
-    dplyr::select(Bait, sample, sample_bait_read_count) %>%
+    dplyr::select(bait, sample, sample_bait_read_count) %>%
     dplyr::mutate(sample_bait_read_count = ifelse(is.na(sample_bait_read_count),0, sample_bait_read_count)) %>%
     dplyr::mutate(sample_bait_read_count = ifelse(is.infinite(sample_bait_read_count),0, sample_bait_read_count)) %>%
     tidyr::spread(sample, sample_bait_read_count)  %>%
@@ -149,7 +149,7 @@ negative_mean_plots <- function(df){
 
 #' @export
 likelihood <- function(df){
-  bait_count <- dplyr::n_distinct(df$Bait)
+  bait_count <- dplyr::n_distinct(df$bait)
   a <- df %>%
     dplyr::group_by(sample) %>%
       dplyr::mutate(
@@ -161,6 +161,6 @@ likelihood <- function(df){
   corrected_p = ifelse(p * bait_count >= 1, 1, p * bait_count)
   )
 
- # b <- dplyr::left_join(df, a, by = "Bait")
+ # b <- dplyr::left_join(df, a, by = "bait")
   return(a)
 }
