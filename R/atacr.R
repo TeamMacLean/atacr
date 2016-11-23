@@ -10,19 +10,19 @@
 
 add_mean_read_count <- function(df){
   df <- df %>%
-    dplyr::group_by(Sample) %>%
-    dplyr::mutate(mean_read_count=mean(ReadCount) )
+    dplyr::group_by(sample) %>%
+    dplyr::mutate(mean_read_count=mean(read_count) )
   return(df)
 }
 
 rename_control_columns <- function(df,control_name){
   df <- df %>%
-    dplyr::filter( Sample == control_name ) %>%
+    dplyr::filter( sample == control_name ) %>%
     plyr::rename(
-      c("Sample"="Control",
-        "MeanCoverage"="control_bait_mean_coverage",
-        "BreadthCoverage"="control_bait_breadth",
-        "ReadCount"="control_bait_read_count",
+      c("sample"="control",
+        "mean_coverage"="control_bait_mean_coverage",
+        "breadth"="control_bait_breadth",
+        "read_count"="control_bait_read_count",
         "mean_read_count"="control_mean_read_count"
       ))
   return(df)
@@ -30,11 +30,11 @@ rename_control_columns <- function(df,control_name){
 
 rename_sample_columns <- function(df, control_name){
   df <- df %>%
-    #dplyr::filter(Sample != control_name) %>%
+    #dplyr::filter(sample != control_name) %>%
     plyr::rename(
-      c("MeanCoverage"="sample_bait_mean_coverage",
-        "BreadthCoverage"="sample_bait_breadth",
-        "ReadCount"="sample_bait_read_count",
+      c("mean_coverage"="sample_bait_mean_coverage",
+        "breadth"="sample_bait_breadth",
+        "read_count"="sample_bait_read_count",
         "mean_read_count"="sample_mean_read_count"
       ))
 }
@@ -42,14 +42,14 @@ rename_sample_columns <- function(df, control_name){
 #' @export
 normalize <- function(df,control_name){
   ## expects a dataframe with columns:
-  ## Sample, Bait, ReadCount, MeanCoverage, BreadthCoverage
+  ## sample, Bait, read_count, mean_coverage, BreadthCoverage
   ## Uses the control_name as a base set of values to normalize against
   df <- add_mean_read_count(df)
   control_df <- rename_control_columns(df, control_name)
   sample_df <- rename_sample_columns(df, control_name)
 
   all_data <- dplyr::left_join(sample_df, control_df, by="Bait") %>%
-    dplyr::arrange(Sample) %>%
+    dplyr::arrange(sample) %>%
     dplyr::mutate(
       read_count_ratio = sample_bait_read_count/control_bait_read_count,
       read_count_ratio = replace(read_count_ratio, read_count_ratio==Inf, NaN)
@@ -58,7 +58,7 @@ normalize <- function(df,control_name){
   all_data <- droplevels(all_data)
 
   all_data <- all_data %>%
-    dplyr::group_by(Sample) %>%
+    dplyr::group_by(sample) %>%
     dplyr::mutate( sample_mean_ratio = mean(read_count_ratio, na.rm = TRUE) )
 
   normalized_data <- all_data %>%
@@ -73,14 +73,14 @@ normalize <- function(df,control_name){
 #' @export
 control_ratio_intensity_plot <- function(df){
 
-  p <- ggplot2::ggplot(df) + ggplot2::aes(a, log_normalized_value) + ggplot2::geom_jitter() + ggplot2::facet_wrap( ~ Sample)
+  p <- ggplot2::ggplot(df) + ggplot2::aes(a, log_normalized_value) + ggplot2::geom_jitter() + ggplot2::facet_wrap( ~ sample)
   return(p)
 }
 
 #' @export
 count_negatives_found <- function(df){
  x <- df %>%
-    dplyr::group_by(Sample) %>%
+    dplyr::group_by(sample) %>%
     dplyr::summarise( negative_control_baits = sum(negative_control) )
  return(x)
 }
@@ -99,7 +99,7 @@ find_negative_control_baits <- function(df, breadth=80, mean_depth=1.2, max_samp
     dplyr::group_by(Bait) %>%
     dplyr::mutate( count = sum(b) )
 
-  maximum = (max_sample_percent / 100) * dplyr::n_distinct(d$Sample)
+  maximum = (max_sample_percent / 100) * dplyr::n_distinct(d$sample)
   if (use_max_sample_count){
     maximum = maximum_sample_count
   }
@@ -118,24 +118,24 @@ find_negative_control_baits <- function(df, breadth=80, mean_depth=1.2, max_samp
 
 #' @export
 all_versus_all_normalized_plot <- function(df){
-  col_count <- dplyr::n_distinct(df$Sample) + 1
+  col_count <- dplyr::n_distinct(df$sample) + 1
   p <- df %>%
-    dplyr::select(Bait, Sample, log_normalized_value) %>%
+    dplyr::select(Bait, sample, log_normalized_value) %>%
     dplyr::mutate(log_normalized_value = ifelse(is.na(log_normalized_value),0, log_normalized_value)) %>%
     dplyr::mutate(log_normalized_value = ifelse(is.infinite(log_normalized_value),0, log_normalized_value)) %>%
-    tidyr::spread(Sample, log_normalized_value)  %>%
+    tidyr::spread(sample, log_normalized_value)  %>%
     GGally::ggpairs(columns=2:col_count, lower=list(continuous="points"), upper=list(continuous=GGally::wrap("cor", size = 10)))
   return(p)
 }
 
 #' @export
 all_versus_all_read_count_plot <- function(df){
-  col_count <- dplyr::n_distinct(df$Sample) + 1
+  col_count <- dplyr::n_distinct(df$sample) + 1
   p <- df %>%
-    dplyr::select(Bait, Sample, sample_bait_read_count) %>%
+    dplyr::select(Bait, sample, sample_bait_read_count) %>%
     dplyr::mutate(sample_bait_read_count = ifelse(is.na(sample_bait_read_count),0, sample_bait_read_count)) %>%
     dplyr::mutate(sample_bait_read_count = ifelse(is.infinite(sample_bait_read_count),0, sample_bait_read_count)) %>%
-    tidyr::spread(Sample, sample_bait_read_count)  %>%
+    tidyr::spread(sample, sample_bait_read_count)  %>%
     GGally::ggpairs(columns=2:col_count, lower=list(continuous="points"), upper=list(continuous=GGally::wrap("cor", size = 10)))
   return(p)
 }
@@ -143,7 +143,7 @@ all_versus_all_read_count_plot <- function(df){
 
 #' @export
 negative_mean_plots <- function(df){
-  p <- ggplot2::ggplot(df) + ggplot2::aes(negative_control, sample_bait_read_count)  + ggplot2::geom_violin(ggplot2::aes(colour=negative_control)) + ggplot2::geom_jitter(ggplot2::aes(colour=negative_control)) + ggplot2::facet_wrap( ~ Sample)
+  p <- ggplot2::ggplot(df) + ggplot2::aes(negative_control, sample_bait_read_count)  + ggplot2::geom_violin(ggplot2::aes(colour=negative_control)) + ggplot2::geom_jitter(ggplot2::aes(colour=negative_control)) + ggplot2::facet_wrap( ~ sample, scales = "free_y")
   return(p)
 }
 
@@ -151,7 +151,7 @@ negative_mean_plots <- function(df){
 likelihood <- function(df){
   bait_count <- dplyr::n_distinct(df$Bait)
   a <- df %>%
-    dplyr::group_by(Sample) %>%
+    dplyr::group_by(sample) %>%
       dplyr::mutate(
           sample_negative_control_mean = mean(sample_bait_read_count[negative_control == TRUE], na.rm = TRUE)
     )
