@@ -42,7 +42,7 @@ rename_sample_columns <- function(df, control_name){
 #' @export
 normalize <- function(df,control_name){
   ## expects a dataframe with columns:
-  ## sample, bait, read_count, mean_coverage, BreadthCoverage
+  ## sample, bait, read_count, mean_coverage, breadth
   ## Uses the control_name as a base set of values to normalize against
   df <- add_mean_read_count(df)
   control_df <- rename_control_columns(df, control_name)
