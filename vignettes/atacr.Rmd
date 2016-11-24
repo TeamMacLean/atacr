@@ -13,11 +13,11 @@ _atacr_ is a package, currently under development for creating statistics and di
 
 The basic input to _atacr_ functions is a long format dataframe [Wickham 2014](https://www.jstatsoft.org/article/view/v059i10), with column names:
 
-* Bait `<factor>` the name of the bait
-* Sample `<factor>` the name of the sample
-* MeanCoverage `<numeric double>` (0..Inf) average number of reads mapping over each position in the bait
-* BreadthCoverage `<numeric double>` (0..100) Percent of positions in the base covered with reads
-* Read Count `<numeric integer>` (0..Inf) Number of reads mapping to the bait region
+* bait `<factor>` the name of the bait
+* sample `<factor>` the name of the sample
+* mean_coverage `<numeric double>` (0..Inf) average number of reads mapping over each position in the bait
+* breadth `<numeric double>` (0..100) Percent of positions in the base covered with reads
+* read_count `<numeric integer>` (0..Inf) Number of reads mapping to the bait region
 
 A built-in dataset, called `tenbaits_threesamples` which has made-up data for ten baits in three samples, is included as an example. This is a meaningless small data included only to show the functionality of the package. 
 
@@ -47,14 +47,14 @@ str(norm)
 
 Some columns are renamed:
 
-* `MeanCoverage` _becomes_ `sample_bait_mean_coverage`
-* `ReadCount` _becomes_ `sample_bait_read_count`
-* `BreadthCoverage` _becomes_ `sample_bait_breadth`
+* `mean_coverage` _becomes_ `sample_bait_mean_coverage`
+* `read_count` _becomes_ `sample_bait_read_count`
+* `breadth` _becomes_ `sample_bait_breadth`
 
 Some columns are new:
 
 * `sample_mean_read_count` - the arithmetic mean read count for that sample
-* `Control` - the samples used as control
+* `control` - the samples used as control
 * `control_bait_mean_coverage` - the mean coverage for the bait on that row in the control sample
 * `control_bait_breadth` - the breadth of coverage for that bait in the control sample
 * `control_bait_read_count` - the read count for that bait in the control sample

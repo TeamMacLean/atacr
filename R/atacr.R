@@ -141,11 +141,20 @@ all_versus_all_read_count_plot <- function(df){
 }
 
 
+
 #' @export
 negative_mean_plots <- function(df){
   p <- ggplot2::ggplot(df) + ggplot2::aes(negative_control, sample_bait_read_count)  + ggplot2::geom_violin(ggplot2::aes(colour=negative_control)) + ggplot2::geom_jitter(ggplot2::aes(colour=negative_control)) + ggplot2::facet_wrap( ~ sample, scales = "free_y")
   return(p)
 }
+
+
+#' @export
+negative_control_mean_coverage <- function(df){
+  df <- df %>% group_by(sample, add=TRUE) %>% mutate(negative_control_average_coverage=mean(sample_bait_mean_coverage[negative_control == TRUE])) %>% mutate(negative_control_average_coverage=ifelse(is.na(negative_control_average_coverage),0,negative_control_average_coverage))
+ return(df)
+}
+
 
 #' @export
 likelihood <- function(df){
