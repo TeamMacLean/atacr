@@ -141,7 +141,6 @@ all_versus_all_read_count_plot <- function(df){
 }
 
 
-
 #' @export
 negative_mean_plots <- function(df){
   p <- ggplot2::ggplot(df) + ggplot2::aes(negative_control, sample_bait_read_count)  + ggplot2::geom_violin(ggplot2::aes(colour=negative_control)) + ggplot2::geom_jitter(ggplot2::aes(colour=negative_control)) + ggplot2::facet_wrap( ~ sample, scales = "free_y")
@@ -151,13 +150,25 @@ negative_mean_plots <- function(df){
 
 #' @export
 negative_control_mean_coverage <- function(df){
-  df <- df %>% group_by(sample, add=TRUE) %>% mutate(negative_control_average_coverage=mean(sample_bait_mean_coverage[negative_control == TRUE])) %>% mutate(negative_control_average_coverage=ifelse(is.na(negative_control_average_coverage),0,negative_control_average_coverage))
+  
+  ## function to return the mean coverage of negative controls for each sample.
+  ## Input: A data frame with, at least, columns - sample, bait, sample_bait_mean_coverage, negative_control
+  ## Output: A data frame with columns - sample and negative_control_average_coverage
+
+  df <- df %>%
+  dplyr::group_by(sample) %>%
+  dplyr::summarise(negative_control_average_coverage=mean(sample_bait_mean_coverage[negative_control == TRUE], na.rm = TRUE))
+  # %>%  mutate(negative_control_average_coverage=ifelse(is.nan(negative_control_average_coverage),0,negative_control_average_coverage))
  return(df)
 }
 
 
 #' @export
 likelihood <- function(df){
+  ## function to find probability of a sample bait obtaining the read count given lambda = mean read count from sample negtive controls only.
+  ## Input : data frame with sample, sample_bait_read_count, negative_control
+  ## Output : data frame with added columns - probability(p), corrected_p
+  
   bait_count <- dplyr::n_distinct(df$bait)
   a <- df %>%
     dplyr::group_by(sample) %>%

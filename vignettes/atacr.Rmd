@@ -107,10 +107,15 @@ The function asks for:
 `max_sample_percent` may be replaced with `max_sample_count` by using `use_max_sample_count = TRUE`
 
 
-You can find a summary of the negative controls you found in each sample with `count_negatives_found()`
+You can find a summary of the negative controls you found in each sample with `count_negatives_found()` and mean coverage of those negative controls with `negative_control_mean_coverage()`
 
 ```{r}
-atacr::count_negatives_found(norm_neg)
+dplyr::left_join(atacr::count_negatives_found(norm_neg), atacr::negative_control_mean_coverage(norm_neg), by="sample")
+```
+
+You can get the mean coverage of the negative controls with `negative_control_mean_coverage(norm_neg)`
+```{r}
+atacr::negative_control_mean_coverage(norm_neg)
 ```
 
 You can plot the difference in means between the negative control baits and the rest with `atacr::negative_mean_plots(norm_neg)`
@@ -118,6 +123,8 @@ You can plot the difference in means between the negative control baits and the 
 ```{r}
 atacr::negative_mean_plots(norm_neg)
 ```
+
+
 
 Iterate this step until the number of negative controls is sensibly high and the separation between negative controls and the rest is good.
 
