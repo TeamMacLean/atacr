@@ -38,10 +38,10 @@ Analysing the data takes a few steps:
 
 The normalisation step is done to allow us to compare between samples more easily. It does not directly impact the likelihood step. The purpose is to create plots that can show the integrity of the data and variability between samples. 
 
-Use the function `atacr::normalize(df, "control_sample_name")`
+Use the function `atacr::quick_normalize(df, "control_sample_name")`
 
 ```{r}
-norm <- atacr::normalize(tenbaits_threesamples, "S1")
+norm <- atacr::quick_normalize(tenbaits_threesamples, "S1")
 str(norm)
 ```
 

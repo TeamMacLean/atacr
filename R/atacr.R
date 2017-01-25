@@ -4,9 +4,32 @@
 #   Check Package:             'Cmd + Shift + E'
 #   Test Package:              'Cmd + Shift + T'
 
-# My imports
-#' @importFrom magrittr "%>%"
+#' @importFrom magrittr %>%
+no_func <- function(x){return(FALSE)} #only here to make line above work
 
+
+#' Get a summary of reads hitting the bait and non bait windows
+#' @export
+#' @param data a list of SummarizedExperiment objects from atacr::make_counts()
+#' @return a table of on target and off target read counts
+on_target_summary <- function(data){
+  df <- on_target_count(data)
+  return(cast(df, sample ~ target, value="count_sum"))
+}
+
+#' Count reads hitting the bait and non bait windows
+#' @export
+#' @param data a list of SummarizedExperiment objects from atacr::make_counts()
+#' @return a dataframe of on target and off target read counts
+on_target_count <- function(data){
+  on <- SummarizedExperiment::assay(data$bait_windows)
+  off <- SummarizedExperiment::assay(data$non_bait_windows)
+  all <- SummarizedExperiment::assay(data$whole_genome)
+  target <- factor( c( rep("on_target", length(colnames(on))), rep("off_target", length(colnames(off)))))
+  sums <- c(colSums(on), colSums(off) )
+  df <- data.frame(sample = names(sums), target = target, count_sum = sums)
+  return(df)
+}
 
 add_mean_read_count <- function(df){
   df <- df %>%
@@ -40,7 +63,7 @@ rename_sample_columns <- function(df, control_name){
 }
 
 #' @export
-normalize <- function(df,control_name){
+quick_normalize <- function(df,control_name){
   ## expects a dataframe with columns:
   ## Sample, Bait, ReadCount, MeanCoverage, BreadthCoverage
   ## Uses the control_name as a base set of values to normalize against
@@ -116,29 +139,7 @@ find_negative_control_baits <- function(df, breadth=80, mean_depth=1.2, max_samp
 
 
 
-#' @export
-all_versus_all_normalized_plot <- function(df){
-  col_count <- dplyr::n_distinct(df$Sample) + 1
-  p <- df %>%
-    dplyr::select(Bait, Sample, log_normalized_value) %>%
-    dplyr::mutate(log_normalized_value = ifelse(is.na(log_normalized_value),0, log_normalized_value)) %>%
-    dplyr::mutate(log_normalized_value = ifelse(is.infinite(log_normalized_value),0, log_normalized_value)) %>%
-    tidyr::spread(Sample, log_normalized_value)  %>%
-    GGally::ggpairs(columns=2:col_count, lower=list(continuous="points"), upper=list(continuous=GGally::wrap("cor", size = 10)))
-  return(p)
-}
 
-#' @export
-all_versus_all_read_count_plot <- function(df){
-  col_count <- dplyr::n_distinct(df$Sample) + 1
-  p <- df %>%
-    dplyr::select(Bait, Sample, sample_bait_read_count) %>%
-    dplyr::mutate(sample_bait_read_count = ifelse(is.na(sample_bait_read_count),0, sample_bait_read_count)) %>%
-    dplyr::mutate(sample_bait_read_count = ifelse(is.infinite(sample_bait_read_count),0, sample_bait_read_count)) %>%
-    tidyr::spread(Sample, sample_bait_read_count)  %>%
-    GGally::ggpairs(columns=2:col_count, lower=list(continuous="points"), upper=list(continuous=GGally::wrap("cor", size = 10)))
-  return(p)
-}
 
 
 #' @export
