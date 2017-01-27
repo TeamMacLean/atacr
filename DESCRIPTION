@@ -5,12 +5,13 @@ Version: 0.1.0
 Authors@R: c(
   person("Dan","MacLean", email="dan.maclean@tsl.ac.uk", role=c("aut", "cre")),
   person("Ram-Krishna", "Shrestha", email="ram-krishnah.shrestha@tsl.ac.uk", role="aut"))
-Description: Uses files of NGS read counts as specified loci to calculate peaks of mapping above background. Currently in development and used for plotting information at most.
+Description: Analyse BAM files from enriched ATAC-seq data
 License: GPL-3
 LazyData: TRUE
 Imports:
     dplyr,
     ggplot2,
+    heatmap3,
     magrittr,
     GGally
 RoxygenNote: 5.0.1

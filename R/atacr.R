@@ -31,6 +31,38 @@ on_target_count <- function(data){
   return(df)
 }
 
+#' identify kmeans clusters for samples
+#' @export
+#' @param data  a list of SummarizedExperiment objects from atacr::make_counts()
+#' @param which the subdivision of the genome to calculate correlations either 'whole_genome', 'bait_windows' or 'non_bait_windows'
+#' @return dataframe of cluster_id and sample name
+sample_kmeans_cluster <- function(data, which="bait_windows"){
+  counts <- SummarizedExperiment::assay(data[[which]])
+  k <- length(unique(data$treatments))
+  c <- kmeans(t(counts), k)
+  d <- data.frame(cluster_id = c$cluster)
+  d$sample <- rownames(d)
+  return(dplyr::arrange(d, cluster_id, sample))
+
+}
+
+#' count windows that have read counts below the threshold
+#' @export
+#' @param data  a list of SummarizedExperiment objects from atacr::make_counts()
+#' @param which the subdivision of the genome to calculate correlations either 'whole_genome', 'bait_windows' or 'non_bait_windows'
+#' @param threshold counts windows with read counts lower than this level
+#' @return dataframe of sample name, count and threshold
+count_windows_under_threshold <- function(data, which="bait_windows", threshold=0){
+  counts <- SummarizedExperiment::assay(data[[which]])
+  b <- apply(counts, MARGIN = 2, function(x){sum(x == threshold)})
+  r <- data.frame(sample=names(b), count=b, threshold=rep(threshold, length(b)) )
+  rownames(r) <- NULL
+  return(r)
+}
+
+
+
+
 add_mean_read_count <- function(df){
   df <- df %>%
     dplyr::group_by(Sample) %>%
@@ -164,4 +196,16 @@ likelihood <- function(df){
 
  # b <- dplyr::left_join(df, a, by = "Bait")
   return(a)
+}
+
+#' a median of window values across all samples in a vector, for ma plots
+#' @param data a list of SummarizedExperiment objects from atacr::make_counts()
+median_virtual_experiment <- function(data, which="bait_windows" ){
+  return(apply(SummarizedExperiment::assay(data[[which]]), 1, median))
+}
+
+ma <- function(test, control){
+  m <- log2(test) - log2(control)
+  a <- 0.5 * (log2(test) + log2(control))
+  return(list( m = m, a = a))
 }
