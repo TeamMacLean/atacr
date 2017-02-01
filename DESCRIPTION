@@ -12,6 +12,8 @@ Imports:
     dplyr,
     ggplot2,
     heatmap3,
+    reshape,
+    tidyr,
     magrittr,
     GGally
 RoxygenNote: 5.0.1

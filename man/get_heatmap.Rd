@@ -4,10 +4,13 @@
 \alias{get_heatmap}
 \title{generate heatmap from matrix of counts}
 \usage{
-get_heatmap(counts, method = "pearson")
+get_heatmap(counts)
 }
 \arguments{
 \item{mat}{a matrix of counts}
+}
+\value{
+ggplot2 plot
 }
 \description{
 generate heatmap from matrix of counts

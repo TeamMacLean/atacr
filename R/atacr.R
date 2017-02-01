@@ -200,12 +200,20 @@ likelihood <- function(df){
 
 #' a median of window values across all samples in a vector, for ma plots
 #' @param data a list of SummarizedExperiment objects from atacr::make_counts()
-median_virtual_experiment <- function(data, which="bait_windows" ){
-  return(apply(SummarizedExperiment::assay(data[[which]]), 1, median))
+median_virtual_experiment <- function(sample_matrix ){
+  return(apply(sample_matrix, 1, median))
 }
 
 ma <- function(test, control){
-  m <- log2(test) - log2(control)
-  a <- 0.5 * (log2(test) + log2(control))
+  m <- emm(test, control)
+  a <- ay(test, control)
   return(list( m = m, a = a))
+}
+
+emm <- function(test,control){
+  return(log2(test) - log2(control) )
+}
+
+ay <- function(test,control){
+  return(0.5 * (log2(test) + log2(control)))
 }
