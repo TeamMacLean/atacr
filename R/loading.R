@@ -40,7 +40,7 @@ make_counts <- function(window_file, sample_treatment_file, width=50, filter_par
   return(result)
 }
 
-## reads a text file concatenating the bait regions
+#' reads a text file containing the bait regions
 get_bait_regions_from_text <- function(file_name){
   df <- read.csv(file_name, sep="\t", header=FALSE)
   df <- plyr::rename(df, c("V1"="bait_name", "V2"="seq_name", "V3"="col1", "V4"="col2"))
@@ -55,6 +55,9 @@ get_bait_regions_from_text <- function(file_name){
   return(bait_regions)
 
 }
+
+
+
 
 #' Loads in a CSV file describing treatment, samples and bam files
 #' @param filename path and name of the file to load

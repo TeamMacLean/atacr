@@ -54,7 +54,7 @@ sample_kmeans_cluster <- function(data, which="bait_windows"){
 #' @return dataframe of sample name, count and threshold
 count_windows_under_threshold <- function(data, which="bait_windows", threshold=0){
   counts <- SummarizedExperiment::assay(data[[which]])
-  b <- apply(counts, MARGIN = 2, function(x){sum(x == threshold)})
+  b <- apply(counts, MARGIN = 2, function(x){sum(x <= threshold)})
   r <- data.frame(sample=names(b), count=b, threshold=rep(threshold, length(b)) )
   rownames(r) <- NULL
   return(r)
