@@ -27,6 +27,7 @@ library_size_normalisation <- function(data, which = "bait_windows", by_treatmen
 names_from_treatment <- function(data, treatment){
   return(data$sample_names[which(data$treatments == treatment)] )
 }
+
 #' do a library size normalisation
 #' @param se a SummarizedExperiment object such as 'bait_windows' from atacr::make_counts()
 library_size_normalisation_internal <- function(se){
