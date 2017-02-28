@@ -17,7 +17,7 @@ make_counts(window_file, sample_treatment_file, width = 50,
 \item{filter_params}{a csaw::readParam() object that defines how reads will be extracted from the BAM files. See http://bioconductor.org/packages/release/bioc/manuals/csaw/man/csaw.pdf for details}
 }
 \value{
-a list of metadata and GRanges objects with read count in windows for whole genome, bait windows and non-bait windows for each sample
+a list of metadata and RangedSummarizedExperiment objects with read count in windows for whole genome, bait windows and non-bait windows for each sample
 }
 \description{
 load BAM files and calculate window coverage

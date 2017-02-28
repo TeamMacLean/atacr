@@ -9,10 +9,11 @@
 #' @param sample_treatment_file A filename of a CSV file that lists treatments, samples and bam file paths
 #' @param width an integer of the width of the bins the bait regions will be divided into
 #' @param filter_params a csaw::readParam() object that defines how reads will be extracted from the BAM files. See http://bioconductor.org/packages/release/bioc/manuals/csaw/man/csaw.pdf for details
-#' @return a list of metadata and GRanges objects with read count in windows for whole genome, bait windows and non-bait windows for each sample
+#' @return a list of metadata and RangedSummarizedExperiment objects with read count in windows for whole genome, bait windows and non-bait windows for each sample
 make_counts <- function(window_file, sample_treatment_file, width=50, filter_params = csaw::readParam(minq = 50) ){
 
   result <- list()
+  class(result) <- c("atacr", "list")
 
   sample_treatment_file_mapping <-  read_experiment_info(sample_treatment_file)
   result$bam_files <- as.character(sample_treatment_file_mapping$bam_file_path)

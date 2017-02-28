@@ -12,24 +12,37 @@ no_func <- function(x){return(FALSE)} #only here to make line above work
 #' @export
 #' @param data a list of SummarizedExperiment objects from atacr::make_counts()
 #' @return a table of on target and off target read counts
-on_target_summary <- function(data){
-  df <- on_target_count(data)
-  return(cast(df, sample ~ target, value="count_sum"))
+target_count_summary <- function(data){
+  df <- target_count_coverage(data)
+  df$means <- NULL
+  return(reshape::cast(df, sample ~ target, value="count_sum"))
+}
+#' Get a summary of depth of coverage in the bait and non bait windows
+#' @export
+#' @param data a list of SummarizedExperiment objects from atacr::make_counts()
+#' @return a table of on target and off target mean depths
+coverage_count_summary <- function(data){
+  df <- target_count_coverage(data)
+  df$count_sum <- NULL
+  return(reshape::cast(df, sample ~ target, value="mean_coverage"))
 }
 
-#' Count reads hitting the bait and non bait windows
+
+#' Read count and mean coverage hitting the bait and non bait windows
 #' @export
 #' @param data a list of SummarizedExperiment objects from atacr::make_counts()
 #' @return a dataframe of on target and off target read counts
-on_target_count <- function(data){
+target_count_coverage <- function(data){
   on <- SummarizedExperiment::assay(data$bait_windows)
   off <- SummarizedExperiment::assay(data$non_bait_windows)
-  all <- SummarizedExperiment::assay(data$whole_genome)
   target <- factor( c( rep("on_target", length(colnames(on))), rep("off_target", length(colnames(off)))))
   sums <- c(colSums(on), colSums(off) )
-  df <- data.frame(sample = names(sums), target = target, count_sum = sums)
+  means <- c(colMeans(on), colMeans(off))
+  df <- data.frame(sample = names(sums), target = target, count_sum = sums, mean_coverage = means) #probably not the same size?
   return(df)
 }
+
+
 
 #' identify kmeans clusters for samples
 #' @export

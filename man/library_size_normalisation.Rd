@@ -6,10 +6,13 @@
  @export
  @param data a list of SummarizedExperiment objects from atacr::make_counts()}
 \usage{
-library_size_normalisation(data, which = "bait_windows")
+library_size_normalisation(data, which = "bait_windows",
+  by_treatment = FALSE)
 }
 \arguments{
 \item{which}{the subdivision of the genome to calculate correlations either 'whole_genome', 'bait_windows' or 'non_bait_windows'}
+
+\item{by_treatment}{(FALSE) will group the assay into different treatments and normalise each separately - assumes that within treatment groups the samples should show little difference, but between sample treatment groups could show lots of difference between windows.}
 }
 \value{
 a SummarizedExperiment object with a new, normalised assay matrix

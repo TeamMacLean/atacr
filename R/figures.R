@@ -148,6 +148,6 @@ plot_count_by_chromosome <- function(data, which="bait_windows", method = "bar")
   if (method == 'point'){
     p <- p + ggplot2::aes(start, count) + ggplot2::geom_point(ggplot2::aes(colour=seqname, fill = seqname) )
   }
-  p <- p + facet_grid(sample ~ seqname)
+  p <- p + ggplot2::facet_grid(sample ~ seqname)
   return(p)
 }

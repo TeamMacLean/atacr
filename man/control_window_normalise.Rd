@@ -4,7 +4,8 @@
 \alias{control_window_normalise}
 \title{performs control window based normalisation of the selected set of windows, calculates a median virtual experiment and normalises to that}
 \usage{
-control_window_normalise(data, window_file, which = "bait_windows")
+control_window_normalise(data, window_file, which = "bait_windows",
+  by_treatment = FALSE)
 }
 \arguments{
 \item{data}{a list of SummarizedExperiment objects from atacr::make_counts()}
@@ -12,6 +13,8 @@ control_window_normalise(data, window_file, which = "bait_windows")
 \item{window_file}{a text file containing the positions of control window/gene ranges}
 
 \item{which}{the subdivision of the genome to calculate correlations either 'whole_genome', 'bait_windows' or 'non_bait_windows'}
+
+\item{by_treatment}{should normalisation be done by all experiments (one median virtualexperiment to compare all samples to) OR should normalisation be done by each treatment type (one median virtual experiment for each different treatment type)}
 }
 \value{
 a vector of scaling factors from control genes

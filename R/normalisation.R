@@ -87,6 +87,7 @@ control_window_normalise_internal <- function( se, window_file ){
 #' @param data a list of SummarizedExperiment objects from atacr::make_counts()
 #' @param which the subdivision of the genome to calculate correlations either 'whole_genome', 'bait_windows' or 'non_bait_windows'
 #' @param window_file a text file containing the positions of control window/gene ranges
+#' @param by_treatment should normalisation be done by all experiments (one median virtualexperiment to compare all samples to) OR should normalisation be done by each treatment type (one median virtual experiment for each different treatment type)
 #' @return a vector of scaling factors from control genes
 control_window_normalise <- function(data, window_file, which = "bait_windows", by_treatment = FALSE ){
     d <- data[[which]]
