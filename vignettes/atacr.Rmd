@@ -114,6 +114,7 @@ pander::pandoc.table(head(multi_result))
 
 ## Visualise the sets of windows, opening/closing in the same pattern
 ```{r}
+library(UpSetR)
 u <- make_UpSetR(multi_result)
 
 upset(fromList(u))
