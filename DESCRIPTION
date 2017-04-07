@@ -5,17 +5,21 @@ Version: 0.1.0
 Authors@R: c(
   person("Dan","MacLean", email="dan.maclean@tsl.ac.uk", role=c("aut", "cre")),
   person("Ram-Krishna", "Shrestha", email="ram-krishnah.shrestha@tsl.ac.uk", role="aut"))
-Description: Analyse BAM files from enriched ATAC-seq data
+Description: Analyse count data from enriched ATAC-seq data. 
 License: GPL-3
 LazyData: TRUE
 Imports:
+    boot,
     dplyr,
+    fitdistrplus,
+    GGally,
+    gridExtra,
     ggplot2,
     heatmap3,
-    reshape,
-    tidyr,
     magrittr,
-    GGally
+    plyr,
+    reshape,
+    tidyr
 RoxygenNote: 5.0.1
 Suggests: testthat,
     knitr,

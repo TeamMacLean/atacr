@@ -1,39 +1,3 @@
-#' @export
-all_versus_all_normalized_plot <- function(df){
-  col_count <- dplyr::n_distinct(df$Sample) + 1
-  p <- df %>%
-    dplyr::select(Bait, Sample, log_normalized_value) %>%
-    dplyr::mutate(log_normalized_value = ifelse(is.na(log_normalized_value),0, log_normalized_value)) %>%
-    dplyr::mutate(log_normalized_value = ifelse(is.infinite(log_normalized_value),0, log_normalized_value)) %>%
-    tidyr::spread(Sample, log_normalized_value)  %>%
-    GGally::ggpairs(columns=2:col_count, lower=list(continuous="points"), upper=list(continuous=GGally::wrap("cor", size = 10)))
-  return(p)
-}
-
-#' @export
-all_versus_all_read_count_plot <- function(df){
-  col_count <- dplyr::n_distinct(df$Sample) + 1
-  p <- df %>%
-    dplyr::select(Bait, Sample, sample_bait_read_count) %>%
-    dplyr::mutate(sample_bait_read_count = ifelse(is.na(sample_bait_read_count),0, sample_bait_read_count)) %>%
-    dplyr::mutate(sample_bait_read_count = ifelse(is.infinite(sample_bait_read_count),0, sample_bait_read_count)) %>%
-    tidyr::spread(Sample, sample_bait_read_count)  %>%
-    GGally::ggpairs(columns=2:col_count, lower=list(continuous="points"), upper=list(continuous=GGally::wrap("cor", size = 10)))
-  return(p)
-}
-
-
-#' Plot on target and off target reads
-#' @export
-#' @param data a list of SummarizedExperiment objects from atacr::make_counts()
-#' @param scales, either "free_y" for free y axes per subplot, or "fixed" for fixed ones.
-#' @return a ggplot barchart object
-on_target_plot <- function(data, scales="free_y"){
-  df <- on_target_count(data)
-  p <- ggplot2::ggplot(df) + ggplot2::aes(target, count_sum) + ggplot2::geom_bar(ggplot2::aes(colour=target, fill=target), stat="identity", ) + ggplot2::facet_wrap( ~ sample, scales="free_y")
-  return(p)
-}
-
 #' Plot heatmap of sample count correlations
 #' @export
 #' @param data a list of SummarizedExperiment objects from atacr::make_counts()
@@ -47,7 +11,7 @@ sample_correlation_heatmap <- function(data, which="bait_windows", method="pears
 #' generate heatmap from matrix of counts
 #' @param mat a matrix of counts
 #' @return ggplot2 plot
-get_heatmap <- function(counts){
+get_heatmap <- function(counts, method="pearson"){
 
   cors <- numeric(0)
   for (c1 in colnames(counts)){
@@ -59,7 +23,7 @@ get_heatmap <- function(counts){
   df <- expand.grid(sample_1=colnames(counts), sample_2=colnames(counts))
   df <- data.frame(sample_1=df$sample_1, sample_2=df$sample_2, correlation=cors)
 
-  heatmap <- ggplot2::ggplot(df, ggplot2::aes(sample_1, sample_2, fill = correlation)) + ggplot2::geom_raster()
+  heatmap <- ggplot2::ggplot(df, ggplot2::aes(sample_1, sample_2, fill = correlation)) + ggplot2::geom_raster()  + ggthemes::scale_color_ptol() + ggplot2::theme_minimal() + ggplot2::ggtitle("Sample Similarities") + ggplot2::labs(x= NULL, y=NULL)
 
   return(heatmap)
 }
@@ -78,9 +42,7 @@ windows_below_coverage_threshold_plot <- function(data, which="bait_windows", fr
     df <- rbind(df, count_windows_under_threshold(data, which = which, threshold = i))
   }
   rownames(df) <- NULL
-
-  a <- df %>% dplyr::group_by(sample) %>% dplyr::mutate(windows_below_threshold = cumsum(count)) %>% dplyr::arrange(sample, threshold)
-  p <- ggplot2::ggplot(a) + ggplot2::aes(threshold, windows_below_threshold) + geom_point() + ggplot2::facet_wrap(~ sample)
+  p <- ggplot2::ggplot(df) + ggplot2::aes(threshold, count) + ggplot2::geom_point() + ggplot2::facet_wrap(~ sample) + ggthemes::scale_color_ptol() + ggthemes::scale_fill_ptol() + ggplot2::theme_minimal()  + ggplot2::ggtitle("Counts of windows below critical threshold") + ggplot2::labs(x="Coverage threshold", y="Windows below threshold")
 
   return(p)
 }
@@ -105,7 +67,7 @@ ma_plot <- function(data, which = "bait_windows", by = NULL ){
   ma_df <-  ma_data(sample_matrix)
   #print(str(ma_df))
   #  do ggplot
-  plot <- ggplot2::ggplot(ma_df) + ggplot2::aes(a,m) + geom_jitter() + facet_wrap(~ sample)
+  plot <- ggplot2::ggplot(ma_df) + ggplot2::aes(a,m) + ggplot2::geom_jitter(alpha=1/length(ma_df)) + ggplot2::facet_wrap(~ sample) + ggthemes::scale_color_ptol() + ggthemes::scale_fill_ptol() + ggplot2::theme_minimal()
   return(plot)
 }
 #' converts SummarizedExperiment::assay matrix to a dataframe with cols 'window', 'sample' and 'count
@@ -116,6 +78,7 @@ assay_matrix_to_df <- function(matrix){
 }
 
 #' adds an 'm' and an 'a' column to an assay matrix dataframe for ma plots
+#' @export
 ma_data <- function(sample_matrix){
   mve <- atacr::median_virtual_experiment(sample_matrix)
   v <- atacr::assay_matrix_to_df( sample_matrix )
@@ -148,6 +111,71 @@ plot_count_by_chromosome <- function(data, which="bait_windows", method = "bar")
   if (method == 'point'){
     p <- p + ggplot2::aes(start, count) + ggplot2::geom_point(ggplot2::aes(colour=seqname, fill = seqname) )
   }
-  p <- p + ggplot2::facet_grid(sample ~ seqname)
+  p <- p + ggplot2::facet_grid(sample ~ seqname) + ggthemes::scale_color_ptol() + ggthemes::scale_fill_ptol() + ggplot2::theme_minimal() + ggplot2::ggtitle("Read Count Over Chromosome") + ggplot2::labs(x= "bp", y="Read Count")
+  return(p)
+}
+
+#' Plot histograms of read counts by sample and window type
+#' @export
+#' @param data a list of SummarizedExperiment objects from atacr::make_counts()
+#' @param which the subdivision of the genome to plot (default = bait and non_bait windows)
+#' @param sample the sample to plot (default = all )
+#' @return a ggplot2 object
+coverage_histogram <- function(data, which = NULL, sample = NULL ){
+  all <- as.data.frame(data)
+
+  if (is.null(which) & is.null(sample)){
+    p <- ggplot2::ggplot(all) + ggplot2::aes(x = count) + ggplot2::geom_histogram(ggplot2::aes(colour = window_type, fill = window_type)) + ggplot2::facet_grid(window_type ~ sample, scales = "free") + ggthemes::scale_color_ptol() + ggthemes::scale_fill_ptol() + ggplot2::theme_minimal() + ggplot2::ggtitle("Frequency of windows with read counts") + ggplot2::labs(x ="Read Count", y = "Number of Windows")
+    return(p)
+  }
+
+  if (is.null(which) & !is.null(sample)){
+    d <- all %>% dplyr::filter(sample == sample)
+    p <- ggplot2::ggplot(d) + ggplot2::aes(x = count) + ggplot2::geom_histogram(ggplot2::aes(colour= window_type, fill = window_type)) + ggplot2::facet_wrap( ~ window_type ) + ggthemes::scale_color_ptol() + ggthemes::scale_fill_ptol() + ggplot2::theme_minimal() + ggplot2::ggtitle("Frequency of windows with read counts") + ggplot2::labs(x= "Read Count", y="Number of Windows")
+  return(p)
+  }
+
+  if (!is.null(which) & is.null(sample)){
+    d <- all %>% dplyr::filter(window_type == which)
+    p <- ggplot2::ggplot(d) + ggplot2::aes(x = count) + ggplot2::geom_histogram(ggplot2::aes(colour = window_type, fill = window_type)) + ggplot2::facet_wrap( ~ sample ) + ggthemes::scale_color_ptol() + ggthemes::scale_fill_ptol() + ggplot2::theme_minimal() + ggplot2::ggtitle("Frequency of windows with read counts") + ggplot2::labs(x = "Read Count", y = "Number of Windows")
+  return(p)
+  }
+
+  if (!is.null(which) & !is.null(sample)){
+    d <- all %>% dplyr::filter(window_type == which & sample == sample)
+    p <- ggplot2::ggplot(d) + ggplot2::aes(x = count) + ggplot2::geom_histogram(ggplot2::aes(colour = window_type, fill = window_type)) + ggthemes::scale_color_ptol() + ggthemes::scale_fill_ptol() + ggplot2::theme_minimal() + ggplot2::ggtitle("Frequency of windows with read counts") + ggplot2::labs(x = "Read Count", y = "Number of Windows")
+    return(p)
+  }
+
+}
+
+#' Plot density of read counts by sample over the chromosomes
+#' @export
+#' @param data a list of SummarizedExperiment objects from atacr::make_counts()
+#' @param which the subdivision of the genome to plot (default = bait and non_bait windows)
+#' @return a ggplot2 object
+chromosome_coverage <- function(data, which = NULL){
+  all <- as.data.frame(data)
+  d <- NULL
+  if (is.null( which )){
+    d <- all
+  }
+  else{
+    d <- all %>% dplyr::filter(window_type == which)
+  }
+  p <- ggplot2::ggplot(d) + ggplot2::aes(start) + ggplot2::geom_density(ggplot2::aes(colour=window_type)) + ggplot2:: facet_grid( sample ~ chromosome, scales = "free_x" ) + ggthemes::scale_color_ptol() + ggthemes::scale_fill_ptol() + ggplot2::theme_minimal()  + ggplot2::ggtitle("Density of coverage over chromosomes")
+  return(p)
+}
+
+#' Named distribution qqplot
+#' @export
+#' @param obs observed values
+#' @param dist expected distribution
+#' @return ggplot2 object
+qqarb <- function(obs, dist = "norm" ){
+  exp <- get_expected_values(obs, dist)
+
+  df <- data.frame(observed_values = sort(obs), expected_values =  sort(exp) )
+  p <- ggplot2::ggplot(df) +ggplot2::aes(expected_values, observed_values) + ggplot2::geom_point() + ggplot2::geom_abline(intercept = 0, slope = 1) + ggthemes::scale_color_ptol() + ggthemes::scale_fill_ptol() + ggplot2::theme_minimal()
   return(p)
 }

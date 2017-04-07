@@ -9,8 +9,9 @@
 #' @param sample_treatment_file A filename of a CSV file that lists treatments, samples and bam file paths
 #' @param width an integer of the width of the bins the bait regions will be divided into
 #' @param filter_params a csaw::readParam() object that defines how reads will be extracted from the BAM files. See http://bioconductor.org/packages/release/bioc/manuals/csaw/man/csaw.pdf for details
+#' @param with_df attach a dataframe version of the data Default = FALSE
 #' @return a list of metadata and RangedSummarizedExperiment objects with read count in windows for whole genome, bait windows and non-bait windows for each sample
-make_counts <- function(window_file, sample_treatment_file, width=50, filter_params = csaw::readParam(minq = 50) ){
+make_counts <- function(window_file, sample_treatment_file, width=50, filter_params = csaw::readParam(minq = 50), with_df = FALSE ){
 
   result <- list()
   class(result) <- c("atacr", "list")
@@ -38,6 +39,9 @@ make_counts <- function(window_file, sample_treatment_file, width=50, filter_par
   result$bait_windows@rowRanges@ranges@NAMES <- as.character(result$bait_windows@rowRanges)
   result$non_bait_windows@rowRanges@ranges@NAMES <- as.character(result$non_bait_windows@rowRanges)
 
+  if (with_df){
+    result$dataframe <- as.data.frame(result)
+  }
   return(result)
 }
 

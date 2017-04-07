@@ -8,5 +8,113 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding[utf8]{inputenc}
 ---
+```{r}
+devtools::load_all("~/Desktop/atacr")
+```
 
 _atacr_ is a package, currently under development for creating statistics and diagnostic plots for short read sequence data from enriched ATAC-seq experiments.
+
+
+
+The data `sim_counts` is a simulated data set with computer generated window counts for three replicates of each of two conditions in experiments with 500 bait and non-bait windows. We'll set each experiment to have 10 % of windows differentially accessible at a difference of approximately 2 fold.
+
+
+Counts in bait windows for "control" samples  will be modelled as $C \sim NB(\mu = 30, size = 10\mu)$.
+
+Counts in bait windows for "treatment" samples will be modelled as $C \cdot unif(0.8,1.2)$.
+
+Differentially accessible bait windows will be modelled as $C_{1..50} \cdot \mathcal{N}( \mu=2,\sigma = \mu/2)$
+
+Non-bait windows will be modelled as $something else?$
+
+The differentially accessible and bait windows will be the first 500 in the dataset, the non-bait windows will be the last 500. 
+
+## Basic experiment information
+
+It's very easy to get information on the coverage for bait/non-bait windows on a per sample basis
+
+```{r, echo=TRUE, fig.height=7, fig.width=7}
+summary(sim_counts)
+plot(sim_counts)
+
+```
+
+
+These plots can be generated individually with the following functions
+
+```{r, eval=FALSE, include=FALSE}
+coverage_histogram(sim_counts)
+chromosome_coverage(sim_counts)
+```
+
+## QC Plots
+Plot for coverage by sequence and sample
+```{r}
+plot_count_by_chromosome(sim_counts)
+```
+
+
+Correlations between sample counts
+
+```{r}
+sample_correlation_heatmap(sim_counts)
+```
+
+
+
+Count windows below a threshold. 
+```{r}
+windows_below_coverage_threshold_plot(sim_counts, which = "bait_windows", from=0, to=15)
+```
+
+
+MA plots
+```{r}
+ma_plot(sim_counts)
+```
+
+## Normalisation
+Two median scaling normalisations. MEdian calculated for a subset of data using `which` option (default = `bait_windows`) and all sample columns are scaled to that median. Scaling factors can be calculated for all treatments or within each treatment individually, using `by_treatment = TRUE`
+
+Straightforward Library Size normalization, these returns a RangedSummarizedExperiment object
+
+Can add this back to the object, and then use the `which` option of the plot objects to replot the new data
+
+```{r}
+sim_counts$library_size_normalised <- library_size_normalisation(sim_counts)
+ma_plot(sim_counts, which = "library_size_normalised")
+```
+
+
+Normalisation by control windows. Requires a text file with the control window positions
+
+
+```{r, eval=FALSE}
+window_file <- "control_windows.txt"
+sim_counts$control_window_normalisation <- control_window_normalise(sim_counts, window_file)
+```
+
+See csaw::offsetCalcs and normalisation vignettes.
+
+
+## Detect differentially accessible windows
+
+Using a bootstrap t-test method for simple two-way comparisons.
+```{r, results = "asis" }
+
+result <- estimate_fdr(sim_counts, "treatment", "control", which = "bait_windows")
+pander::pandoc.table(head(result))
+```
+This can also be done for multiclass designs with multiples samples
+
+```{r}
+multi_result <- estimate_fdr_multiclass(sim_counts, "control", which = "bait_windows")
+pander::pandoc.table(head(multi_result))
+```
+
+## Visualise the sets of windows, opening/closing in the same pattern
+```{r}
+u <- make_UpSetR(multi_result)
+
+upset(fromList(u))
+```

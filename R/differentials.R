@@ -67,8 +67,8 @@ get_sd <- function(comparisons){
 }
 
 get_fc <- function(result){
-  log2_fold_change <- apply(result, 1, function(x){ log2(x[4]) - log2(x[5])})
-  return(cbind(result,log2_fold_change))
+  log2_fc <- apply(result, 1, function(x){ log2(x[4]) - log2(x[5])})
+  return(cbind(result,log2_fc))
 }
 
 
@@ -99,7 +99,7 @@ estimate_fdr <- function(data, treatment_a, treatment_b, which = "bait_windows",
   result <- apply(comparison_matrix, 1, bootstrap_t, iterations=iterations)
   result <- t(result)
   colnames(result) <- c("t", "p_value")
-  print(head(result))
+  rownames(result) <- rownames(sample_matrix)
   #calc FDR
   fdr <- p.adjust(result[,"p_value"], method="fdr")
   names(fdr) <- ("fdr")
@@ -118,25 +118,37 @@ estimate_fdr <- function(data, treatment_a, treatment_b, which = "bait_windows",
 
   result <- as.data.frame(result)
   result$is_sig <- is_sig
+  result$window <- rownames(sample_matrix)
   #sort by fdr
   result <- dplyr::arrange(result, fdr)
-  return(result)
+  return(result[,c(10,1:9)])
 
 }
 
-estimate_rp <- function(treatment_a, treatment_b, read_exp_mapping, data, iterations=10, fdr_level=0.05){
 
-
-
+estimate_fdr_multiclass <- function(data, common_control, which = "bait_windows", iterations=10,fdr_level=0.05){
+  treatments <- data$treatments[data$treatments != common_control]
+  control <- rep(common_control, length(treatments))
+  comparisons <- cbind(treatments, control)
+  
+  r <- list()
+  for (i in 1:nrow(comparisons)){
+    tr <- comparisons[i,][1]
+    ct <- comparisons[i,][2]
+    
+    df <- atacr::estimate_fdr(data,
+                    tr,
+                    ct, 
+                    which = which, 
+                    iterations = iterations,
+                    fdr_level = fdr_level)
+         df$a <- rep(tr, nrow(df))
+         df$b <- rep(ct, nrow(df))
+    r[[i]] <- df     
+    }
+  return(do.call(rbind, r))  
+  
 }
 
-## how this is supposed to work:
-# 1. create file of treatment, sample_name, bam_file_path to load in with read_experiment_info
-# this returns object like
-# 2. df <- data.frame(treatment=c("mock", "flg22", "UB40","mock","mock"), "sample_name"=c("sample_1", "atac_3", "sample_4", "atac_2", "atac_5"), "bam_file_path"=c("result/bam.bam", "other/bam.sorted.bam", "last/bam.bam.bam", "bam", "no.bam"))
-# 3. Then you can get a list of names for a sample from the df using
-# n <- names_from_treatment(c("mock"), df)
-# 4. Then you can subset the experiment matrix e.g in the RangedSummarizedExperiment object by name (nb you'll need to have set colnames() to the sample_names in the df)
-# mock_experiments <- assay(filtered)[,n]
 
 

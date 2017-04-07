@@ -9,7 +9,8 @@ count_windows_under_threshold(data, which = "bait_windows", threshold = 0)
 \arguments{
 \item{data}{a list of SummarizedExperiment objects from atacr::make_counts()}
 
-\item{which}{the subdivision of the genome to calculate correlations either 'whole_genome', 'bait_windows' or 'non_bait_windows'}
+\item{which}{the subdivision of the genome to calculate correlations either
+'whole_genome', 'bait_windows' or 'non_bait_windows'}
 
 \item{threshold}{counts windows with read counts lower than this level}
 }
