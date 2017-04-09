@@ -5,6 +5,9 @@
 #   Test Package:              'Cmd + Shift + T'
 
 #' @importFrom magrittr %>%
+#' @importFrom graphics hist
+#' @importFrom stats cor kmeans median p.adjust quantile rnbinom rnorm rpois runif sd start t.test window
+#' @importFrom utils capture.output read.csv str
 no_func <- function(x){return(FALSE)} #only here to make line above work
 
 #' Get a summary of reads hitting the bait and non bait windows
