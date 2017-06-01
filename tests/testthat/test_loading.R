@@ -19,7 +19,7 @@ test_that("when loading bam files, region names load correctly", {
   expect_is(data$bait_windows, "RangedSummarizedExperiment")
   expect_is(data$non_bait_windows, "RangedSummarizedExperiment")
 
-  ## check that first range in each set of windows (genome, bait, none_baits) has right rownames - presumably is parsed correctly... implicitly this tests whether the windows are loaded correctly
+  ## check that first range in each set of windows (genome, bait, none_baits) has right rownames - presumably is parsed correctly... this tests whether the windows are loaded correctly
 
   expect_that(names(data$whole_genome)[1], equals("Chr1:1-50"))
   expect_that(names(data$non_bait_windows)[1], equals("Chr1:1-50"))
