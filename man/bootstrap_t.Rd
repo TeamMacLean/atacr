@@ -6,7 +6,14 @@
 \usage{
 bootstrap_t(data, iterations = 10)
 }
+\arguments{
+\item{data}{matrix of sample data}
+
+\item{iterations}{number of bootstrap iterations to run}
+}
+\value{
+vector of 2 items, observed value t statisitc and p, calculated as proportion of bootstrap iterations greater than original t
+}
 \description{
 runs bootstrap t test, wrapper required for boot::boot function
 }
-

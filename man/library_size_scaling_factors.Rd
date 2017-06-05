@@ -12,4 +12,3 @@ library_size_scaling_factors(se)
 \description{
 calculate scaling factors for library size
 }
-

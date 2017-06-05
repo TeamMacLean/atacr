@@ -15,4 +15,3 @@ a table of on target and off target mean depths
 \description{
 Get a summary of depth of coverage in the bait and non bait windows
 }
-

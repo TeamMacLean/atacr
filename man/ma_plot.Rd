@@ -6,7 +6,13 @@
 \usage{
 ma_plot(data, which = "bait_windows", by = NULL)
 }
+\arguments{
+\item{data}{an atacr object}
+
+\item{which}{the subset of windows to operate on}
+
+\item{by}{a vector of  subset of the genome to work}
+}
 \description{
 plot M (log2 ratio of a windows sample count to windows all-sample median count ) versus A (log2 sum of a windows sample count to a windows all-sample median count ) for each window
 }
-

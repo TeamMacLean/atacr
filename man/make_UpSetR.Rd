@@ -2,7 +2,7 @@
 % Please edit documentation in R/atacr.R
 \name{make_UpSetR}
 \alias{make_UpSetR}
-\title{given a dataframe from the estimate_fdr_multiclass() function, will return a 
+\title{given a dataframe from the estimate_fdr_multiclass() function, will return a
 list in the format suitable for UpSetR visualisation.
 Does not do any filtering of lists, so selected genes must be filtered before hand e.g with dplyr}
 \usage{
@@ -13,8 +13,7 @@ make_UpSetR(df)
 return list of named vectors suitable for UpSetR fromList() function}
 }
 \description{
-given a dataframe from the estimate_fdr_multiclass() function, will return a 
+given a dataframe from the estimate_fdr_multiclass() function, will return a
 list in the format suitable for UpSetR visualisation.
 Does not do any filtering of lists, so selected genes must be filtered before hand e.g with dplyr
 }
-

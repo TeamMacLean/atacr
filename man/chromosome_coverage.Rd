@@ -17,4 +17,3 @@ a ggplot2 object
 \description{
 Plot density of read counts by sample over the chromosomes
 }
-

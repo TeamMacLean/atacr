@@ -1,5 +1,0 @@
-treatment,sample_name,bam_file_path
-test,test_1,inst/extdata/bams/a1/alignedSorted.bam
-test,test_2,inst/extdata/bams/a2/alignedSorted.bam
-control,control_1,inst/extdata/bams/b1/alignedSorted.bam
-control,control_2,inst/extdata/bams/b2/alignedSorted.bam

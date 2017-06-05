@@ -8,8 +8,12 @@ control_window_normalise_internal(se, window_file)
 }
 \arguments{
 \item{se}{a SummarizedExperiment object such as 'bait_windows' from atacr::make_counts()}
+
+\item{window_file}{a text file containing the positions of control window/gene ranges}
+}
+\value{
+SummarizedExperiment object, a copy of se with normalised values
 }
 \description{
 do a control window scaling normalisation
 }
-

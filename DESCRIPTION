@@ -11,22 +11,32 @@ Description: atacr helps with the analysis of count data from ATAC-seq experimen
     Especially, atacr is useful for performing control window based normalisations and for
     easily running tests for differentially accessible windows in common reference designs with 
     multiclass data.
+Depends: R (>= 3.0.0)
 License: GPL-3
 LazyData: TRUE
 Imports:
     boot,
+    csaw,
     dplyr,
     fitdistrplus,
+    GenomicRanges,
     gridExtra,
     ggplot2,
+    ggthemes,
     heatmap3,
+    IRanges,
     magrittr,
     plyr,
     reshape,
+    reshape2,
+    S4Vectors,
+    SummarizedExperiment,
     tidyr
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1
 Suggests: testthat,
     knitr,
+    pander,
     rmarkdown,
     UpSetR
 VignetteBuilder: knitr
+biocViews:

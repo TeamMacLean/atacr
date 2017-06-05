@@ -13,10 +13,11 @@ get_fit(dist, data = NULL, which = "bait_windows", keep = c("chisqpvalue",
 
 \item{data}{a list of SummarizedExperiment objects from atacr::make_counts()}
 
-\item{which}{the subset of data windows to report on. Default =
-"bait_windows"}
+\item{which}{the subset of data windows to report on. Default = "bait_windows"}
 
 \item{keep}{a character vector of fitdistrplus statistics to report}
+
+\item{min_count}{the minimum count in a window for use in the fit}
 }
 \value{
 data.frame with columns for keep statistics, dsitribution tested and
@@ -26,4 +27,3 @@ data.frame with columns for keep statistics, dsitribution tested and
 run fitdistrplus to estimate chisquared goodness of fit and kolmogorov
 smirnov tests for fit to distributions
 }
-

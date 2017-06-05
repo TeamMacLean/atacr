@@ -12,4 +12,3 @@ read_experiment_info(filename)
 \description{
 Loads in a CSV file describing treatment, samples and bam files
 }
-

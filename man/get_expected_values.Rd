@@ -19,4 +19,3 @@ a vector of length obs with random variates from distribution dist
 given a vector of values return a set of random numbers from a given
 distribution
 }
-

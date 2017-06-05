@@ -10,6 +10,8 @@ sample_correlation_heatmap(data, which = "bait_windows", method = "pearson")
 \item{data}{a list of SummarizedExperiment objects from atacr::make_counts()}
 
 \item{which}{the subdivision of the genome to calculate correlations either 'whole_genome', 'bait_windows' or 'non_bait_windows'}
+
+\item{method}{the correlation method to use. Any supported by `cor()` is useable}
 }
 \value{
 a ggplot object from geom_raster()
@@ -17,4 +19,3 @@ a ggplot object from geom_raster()
 \description{
 Plot heatmap of sample count correlations
 }
-

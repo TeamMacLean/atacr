@@ -29,4 +29,3 @@ a RangedSummarizedExperiment object with count matrix as specified
 \description{
 generate a synthetic count matrix
 }
-

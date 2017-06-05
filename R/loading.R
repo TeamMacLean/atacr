@@ -46,6 +46,8 @@ make_counts <- function(window_file, sample_treatment_file, width=50, filter_par
 }
 
 #' reads a text file containing the bait regions
+#' @param file_name path to the file containing the bait regions
+#' @return GenomicRanges object of bait regions
 get_bait_regions_from_text <- function(file_name){
   df <- read.csv(file_name, sep="\t", header=FALSE)
   df <- plyr::rename(df, c("V1"="bait_name", "V2"="seq_name", "V3"="col1", "V4"="col2"))

@@ -15,4 +15,3 @@ a table of on target and off target read counts
 \description{
 Get a summary of reads hitting the bait and non bait windows
 }
-

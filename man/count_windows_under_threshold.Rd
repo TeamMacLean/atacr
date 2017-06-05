@@ -20,4 +20,3 @@ dataframe of sample name, count and threshold
 \description{
 count windows that have read counts below the threshold
 }
-

@@ -22,4 +22,3 @@ ggplot2 plot
 \description{
 generate cumulative plot of number of windows below a threshold in samples
 }
-

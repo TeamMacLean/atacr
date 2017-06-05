@@ -19,4 +19,3 @@ ggplot2 plot
 \description{
 plot the counts split by chromosome and sample
 }
-

@@ -6,7 +6,9 @@
 \usage{
 assay_matrix_to_df(matrix)
 }
+\arguments{
+\item{matrix}{a SummarizedExperiment::assay matrix}
+}
 \description{
 converts SummarizedExperiment::assay matrix to a dataframe with cols 'window', 'sample' and 'count
 }
-

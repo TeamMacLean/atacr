@@ -14,10 +14,11 @@ get_fits(data, dists = c("norm", "pois", "nbinom"), which = "bait_windows",
 \item{dists}{a character vector of distribution names recognised by
 fitdistrplus}
 
-\item{which}{the subset of data windows to report on. Default =
-"bait_windows"}
+\item{which}{the subset of data windows to report on. Default = "bait_windows"}
 
 \item{keep}{a character vector of fitdistrplus statistics to report}
+
+\item{min_count}{the minimum count in a window for use in the fit}
 }
 \value{
 data.frame with columns for keep statistics,  and samples
@@ -26,4 +27,3 @@ data.frame with columns for keep statistics,  and samples
 run distribution fitting for all samples in a data set using multiple named
 distributions
 }
-

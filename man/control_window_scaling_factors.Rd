@@ -7,13 +7,9 @@
 control_window_scaling_factors(se, window_file)
 }
 \arguments{
+\item{se}{a SummarizedExperiment object}
+
 \item{window_file}{a text file containing the positions of control window/gene ranges}
-
-\item{data}{a list of SummarizedExperiment objects from atacr::make_counts()}
-
-\item{which}{the subdivision of the genome to calculate correlations either 'whole_genome', 'bait_windows' or 'non_bait_windows'}
-
-\item{by_treatment}{(FALSE) will group the assay into different treatments and normalise each separately - assumes that within treatment groups the samples should show little difference, but between sample treatment groups could show lots of difference between windows.}
 }
 \value{
 a vector of scaling factors from control genes
@@ -21,4 +17,3 @@ a vector of scaling factors from control genes
 \description{
 extract scaling factors from control windows (often from a file of control gene positions)
 }
-

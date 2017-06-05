@@ -15,4 +15,3 @@ a dataframe of on target and off target read counts
 \description{
 Read count and mean coverage hitting the bait and non bait windows
 }
-

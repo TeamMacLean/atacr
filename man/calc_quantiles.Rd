@@ -20,4 +20,3 @@ list of counts at quantiles
 \description{
 report counts at each quantile for each sample
 }
-

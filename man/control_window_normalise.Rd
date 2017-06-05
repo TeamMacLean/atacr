@@ -22,4 +22,3 @@ a vector of scaling factors from control genes
 \description{
 performs control window based normalisation of the selected set of windows, calculates a median virtual experiment and normalises to that
 }
-

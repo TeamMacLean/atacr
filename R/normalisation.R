@@ -1,6 +1,6 @@
 #' performs a whole library size normalisation of the selected set of windows, calculates a median virtual experiment and normalises to that
-#'  @export
-#'  @param data a list of SummarizedExperiment objects from atacr::make_counts()
+#' @export
+#' @param data a list of SummarizedExperiment objects from atacr::make_counts()
 #' @param which the subdivision of the genome to calculate correlations either 'whole_genome', 'bait_windows' or 'non_bait_windows'
 #' @param by_treatment (FALSE) will group the assay into different treatments and normalise each separately - assumes that within treatment groups the samples should show little difference, but between sample treatment groups could show lots of difference between windows.
 #' @return a SummarizedExperiment object with a new, normalised assay matrix
@@ -48,7 +48,7 @@ library_size_scaling_factors <- function( se ){
 }
 
 get_scaling_factors <- function( sample_matrix ){
-  mve_sum <- sum(atacr::median_virtual_experiment( sample_matrix ))
+  mve_sum <- sum(median_virtual_experiment( sample_matrix ))
   scaling_factors <- sapply(colSums( sample_matrix ), function(x){ mve_sum / x })
   return(scaling_factors)
 }
@@ -60,10 +60,8 @@ scale_normalise <- function( sample_matrix, scaling_factors){
 
 #' extract scaling factors from control windows (often from a file of control gene positions)
 #' @export
-#' @param data a list of SummarizedExperiment objects from atacr::make_counts()
-#' @param which the subdivision of the genome to calculate correlations either 'whole_genome', 'bait_windows' or 'non_bait_windows'
+#' @param se a SummarizedExperiment object
 #' @param window_file a text file containing the positions of control window/gene ranges
-#' @param by_treatment (FALSE) will group the assay into different treatments and normalise each separately - assumes that within treatment groups the samples should show little difference, but between sample treatment groups could show lots of difference between windows.
 #' @return a vector of scaling factors from control genes
 control_window_scaling_factors <- function( se, window_file){
   control_window_regions <- get_bait_regions_from_text( window_file )
@@ -75,6 +73,8 @@ control_window_scaling_factors <- function( se, window_file){
 }
 #' do a control window scaling normalisation
 #' @param se a SummarizedExperiment object such as 'bait_windows' from atacr::make_counts()
+#' @param window_file a text file containing the positions of control window/gene ranges
+#' @return SummarizedExperiment object, a copy of se with normalised values
 control_window_normalise_internal <- function( se, window_file ){
   scaling_factors <- control_window_scaling_factors( se, window_file)
   normalised_sample_matrix <- scale_normalise(SummarizedExperiment::assay( se ), scaling_factors)

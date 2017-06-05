@@ -7,7 +7,9 @@
 get_heatmap(counts, method = "pearson")
 }
 \arguments{
-\item{mat}{a matrix of counts}
+\item{counts}{a matrix of counts}
+
+\item{method}{the correlation method to use, any supported by `cor()` is useable}
 }
 \value{
 ggplot2 plot
@@ -15,4 +17,3 @@ ggplot2 plot
 \description{
 generate heatmap from matrix of counts
 }
-

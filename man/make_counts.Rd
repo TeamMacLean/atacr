@@ -24,4 +24,3 @@ a list of metadata and RangedSummarizedExperiment objects with read count in win
 \description{
 load BAM files and calculate window coverage
 }
-

@@ -19,4 +19,3 @@ a ggplot2 object
 \description{
 Plot histograms of read counts by sample and window type
 }
-

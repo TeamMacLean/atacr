@@ -19,4 +19,3 @@ list with members observed and expected which are vectors of counts
 \description{
 given a vector of numbersd returns the counts in bins of bin_width, and the count
 }
-

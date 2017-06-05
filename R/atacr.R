@@ -4,6 +4,9 @@
 #   Check Package:             'Cmd + Shift + E'
 #   Test Package:              'Cmd + Shift + T'
 
+# stop devtools::check() complain about elements in ggplot and dplyr packages
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
+
 #' @importFrom magrittr %>%
 #' @importFrom graphics hist
 #' @importFrom stats cor kmeans median p.adjust quantile rnbinom rnorm rpois runif sd start t.test window
@@ -17,6 +20,7 @@ no_func <- function(x){return(FALSE)} #only here to make line above work
 target_count_summary <- function(data){
   df <- target_count_coverage(data)
   df$means <- NULL
+  on_target <- off_target <- NULL #deal with devtools::check()
   d <- df %>% reshape::cast( sample ~ target, value="count_sum") %>% dplyr::mutate("percent_on_target" = ((on_target/(on_target + off_target)) * 100) )
   return(d)
 }
@@ -56,6 +60,7 @@ sample_kmeans_cluster <- function(data, which="bait_windows"){
   c <- kmeans(t(counts), k)
   d <- data.frame(cluster_id = c$cluster)
   d$sample <- rownames(d)
+  cluster_id <- NULL
   return(dplyr::arrange(d, cluster_id, sample))
 
 }
@@ -102,8 +107,8 @@ calc_quantiles <- function(data, quantiles = c(.01,.05,0.95, 0.99), which = NULL
 #' @param dist a distribution name recognised by fitdistrplus
 #' @param data a list of SummarizedExperiment objects from atacr::make_counts()
 #' @param keep a character vector of fitdistrplus statistics to report
-#' @param which the subset of data windows to report on. Default =
-#'   "bait_windows"
+#' @param which the subset of data windows to report on. Default = "bait_windows"
+#' @param min_count the minimum count in a window for use in the fit
 #' @return data.frame with columns for keep statistics, dsitribution tested and
 #'   samples
 get_fit <- function(dist, data = NULL, which = "bait_windows", keep = c("chisqpvalue", "cvm", "ad", "ks"), min_count = 0){
@@ -136,20 +141,20 @@ get_fit <- function(dist, data = NULL, which = "bait_windows", keep = c("chisqpv
 #' @param data a list of SummarizedExperiment objects from atacr::make_counts()
 #' @param dists a character vector of distribution names recognised by
 #'   fitdistrplus
-#' @param which the subset of data windows to report on. Default =
-#'   "bait_windows"
+#' @param which the subset of data windows to report on. Default = "bait_windows"
+#' @param min_count the minimum count in a window for use in the fit
 #' @param keep a character vector of fitdistrplus statistics to report
 #' @return data.frame with columns for keep statistics,  and samples
-get_fits <- function(data, 
-                     dists = c("norm", "pois","nbinom"), 
-                     which = "bait_windows", 
-                     keep = c("chisqpvalue", "cvm", "ad", "ks"), 
+get_fits <- function(data,
+                     dists = c("norm", "pois","nbinom"),
+                     which = "bait_windows",
+                     keep = c("chisqpvalue", "cvm", "ad", "ks"),
                      min_count = 0 ){
-  
-  result <- lapply(dists, get_fit, 
-                   data, 
-                   which = which, 
-                   keep = keep, 
+
+  result <- lapply(dists, get_fit,
+                   data,
+                   which = which,
+                   keep = keep,
                    min_count = min_count
                    )
   return(do.call("rbind", result))
@@ -166,8 +171,8 @@ get_expected_values <- function(obs, dist="norm"){
   if (dist == "pois") exp <- rpois(length(obs), lambda = mean(obs) )
   if (dist == "nbinom"){
     est <- fitdistrplus::fitdist(obs, "nbinom")
-    exp <- rnbinom(length(obs), 
-                   size = est$estimate[['size']], 
+    exp <- rnbinom(length(obs),
+                   size = est$estimate[['size']],
                    mu = est$estimate[['mu']]
                    )
   }
@@ -193,7 +198,9 @@ observed_expected_bins <- function(obs, dist = "pois", bin_width=10) {
 }
 
 #' a median of window values across all samples in a vector, for ma plots
-#' @param data a list of SummarizedExperiment objects from atacr::make_counts()
+#' @export
+#' @param sample_matrix counts extracted from a SummarizedExperiment object
+#' @return the median of the provided counts, columnwise
 median_virtual_experiment <- function(sample_matrix ){
   return(apply(sample_matrix, 1, median))
 }
@@ -206,19 +213,32 @@ ay <- function(test,control){
   return(0.5 * (log2(test) + log2(control)))
 }
 
-#' given a dataframe from the estimate_fdr_multiclass() function, will return a 
+#' given a dataframe from the estimate_fdr_multiclass() function, will return a
 #' list in the format suitable for UpSetR visualisation.
 #' Does not do any filtering of lists, so selected genes must be filtered before hand e.g with dplyr
 #' @export
 #' @param df dataframe from estimate_fdr_multiclass
 #' return list of named vectors suitable for UpSetR fromList() function
 make_UpSetR <- function(df){
-  r <- df %>% 
+  log2_fc <- direction <- a <- NULL
+  r <- df %>%
     dplyr::mutate(
-      direction = ifelse(log2_fc > 0, "open", "closed"), 
+      direction = ifelse(log2_fc > 0, "open", "closed"),
       category = paste0(direction, "_", a)
-      ) 
-  r <- r %>% split( r$category  ) %>% 
+      )
+  r <- r %>% split( r$category  ) %>%
     lapply( function(x) as.vector(dplyr::select(x, window)$window))
   return(r)
 }
+
+#' Simulated count data
+#'
+#' The data `sim_counts` is a simulated data set with computer generated window counts for three replicates of each of two conditions in experiments with 500 bait and non-bait windows. We'll set each experiment to have 10 \% of windows differentially accessible at a difference of approximately 2 fold.
+#'
+#' Counts in bait windows for "control" samples  will be modelled as \eqn{C \sim NB(\mu = 30, size = 10\mu)}.
+#'
+#' Counts in bait windows for "treatment" samples will be modelled as \eqn{C \cdot unif(0.8,1.2)}.
+#'
+#' Differentially accessible bait windows will be modelled as \eqn{C_{1..50} \cdot \mathcal{N}( \mu=2,\sigma = \mu/2)}
+#' @format A SummarizedExperiment object
+"sim_counts"

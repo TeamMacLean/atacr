@@ -2,14 +2,14 @@
 % Please edit documentation in R/normalisation.R
 \name{library_size_normalisation}
 \alias{library_size_normalisation}
-\title{performs a whole library size normalisation of the selected set of windows, calculates a median virtual experiment and normalises to that
- @export
- @param data a list of SummarizedExperiment objects from atacr::make_counts()}
+\title{performs a whole library size normalisation of the selected set of windows, calculates a median virtual experiment and normalises to that}
 \usage{
 library_size_normalisation(data, which = "bait_windows",
   by_treatment = FALSE)
 }
 \arguments{
+\item{data}{a list of SummarizedExperiment objects from atacr::make_counts()}
+
 \item{which}{the subdivision of the genome to calculate correlations either 'whole_genome', 'bait_windows' or 'non_bait_windows'}
 
 \item{by_treatment}{(FALSE) will group the assay into different treatments and normalise each separately - assumes that within treatment groups the samples should show little difference, but between sample treatment groups could show lots of difference between windows.}
@@ -19,7 +19,4 @@ a SummarizedExperiment object with a new, normalised assay matrix
 }
 \description{
 performs a whole library size normalisation of the selected set of windows, calculates a median virtual experiment and normalises to that
- @export
- @param data a list of SummarizedExperiment objects from atacr::make_counts()
 }
-

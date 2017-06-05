@@ -12,4 +12,3 @@ library_size_normalisation_internal(se)
 \description{
 do a library size normalisation
 }
-

@@ -1,7 +1,7 @@
 #' gets t-statistic for two vectors of data, x and y
 #' @param data matrix of sample data
 #' @param indices indices selected by boot::boot
-#' return t the t statistic from Student's t-test
+#' @return t the t statistic from Student's t-test or NA if error
 get_t <- function(data,indices){
   d <- data[indices]
 
@@ -28,7 +28,9 @@ get_t <- function(data,indices){
 
 
 #'runs bootstrap t test, wrapper required for boot::boot function
-#'
+#' @param data matrix of sample data
+#' @param iterations number of bootstrap iterations to run
+#' @return vector of 2 items, observed value t statisitc and p, calculated as proportion of bootstrap iterations greater than original t
 bootstrap_t <- function(data, iterations=10){
   boot_res <- boot::boot(data, statistic=get_t, R=iterations)
   original <- boot_res$t0
@@ -75,7 +77,12 @@ get_fc <- function(result){
 
 #' Estimate FDR and significantly different windows
 #' @export
-#'
+#' @param data an atacr object
+#' @param treatment_a the first treatment to consider
+#' @param treatment_b the second treatment to consider
+#' @param which the subset of windows to consider
+#' @param iterations the number of bootstrap iterations to perform
+#' @param fdr_level the level at which to mark FDR as significant
 estimate_fdr <- function(data, treatment_a, treatment_b, which = "bait_windows", iterations=10,fdr_level=0.05){
 
   sample_matrix <- SummarizedExperiment::assay(data[[which]])
@@ -125,29 +132,35 @@ estimate_fdr <- function(data, treatment_a, treatment_b, which = "bait_windows",
 
 }
 
-
+#' Estimate FDR and significantly different windows for many experimets
+#' @export
+#' @param data an atacr object
+#' @param common_control the treatment to consider the control for all other treatments
+#' @param which the subset of windows to consider
+#' @param iterations the number of bootstrap iterations to perform
+#' @param fdr_level the level at which to mark FDR as significant
 estimate_fdr_multiclass <- function(data, common_control, which = "bait_windows", iterations=10,fdr_level=0.05){
   treatments <- data$treatments[data$treatments != common_control]
   control <- rep(common_control, length(treatments))
   comparisons <- cbind(treatments, control)
-  
+
   r <- list()
   for (i in 1:nrow(comparisons)){
     tr <- comparisons[i,][1]
     ct <- comparisons[i,][2]
-    
+
     df <- atacr::estimate_fdr(data,
                     tr,
-                    ct, 
-                    which = which, 
+                    ct,
+                    which = which,
                     iterations = iterations,
                     fdr_level = fdr_level)
          df$a <- rep(tr, nrow(df))
          df$b <- rep(ct, nrow(df))
-    r[[i]] <- df     
+    r[[i]] <- df
     }
-  return(do.call(rbind, r))  
-  
+  return(do.call(rbind, r))
+
 }
 
 

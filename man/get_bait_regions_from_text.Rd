@@ -6,7 +6,12 @@
 \usage{
 get_bait_regions_from_text(file_name)
 }
+\arguments{
+\item{file_name}{path to the file containing the bait regions}
+}
+\value{
+GenomicRanges object of bait regions
+}
 \description{
 reads a text file containing the bait regions
 }
-

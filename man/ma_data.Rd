@@ -6,7 +6,9 @@
 \usage{
 ma_data(sample_matrix)
 }
+\arguments{
+\item{sample_matrix}{a SummarizedExperiment::assay from which to make the MA plot}
+}
 \description{
 adds an 'm' and an 'a' column to an assay matrix dataframe for ma plots
 }
-

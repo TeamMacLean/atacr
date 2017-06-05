@@ -1,3 +1,4 @@
+
 meta_summary <- function(atcr){
   samples = paste(unique(atcr$sample_names), collapse=",")
   treatments = paste(unique(atcr$treatments), collapse=",")
@@ -13,11 +14,21 @@ meta_summary <- function(atcr){
     ))
 }
 
-print.atacr <- function(atcr){
-  meta_summary(atcr)
+#' writes a summary of the metadata for a given atacr object
+#' @export
+#' @param x an atacr object
+#' @param \dots other options for print generic
+print.atacr <- function(x, ...){
+  meta_summary(x)
+  invisible(x)
 }
 
-summary.atacr <- function(atcr){
+#' writes a detailed data summary of the atacr object
+#' @export
+#' @param object an atacr object
+#' @param \dots other options for summary generic
+summary.atacr <- function(object, ...){
+  atcr <- object
   meta <- meta_summary(atcr)
   on_target <- paste(capture.output(target_count_summary(atcr)), collapse="\n")
   coverage <- paste(capture.output(coverage_count_summary(atcr)), collapse="\n")
@@ -32,14 +43,25 @@ summary.atacr <- function(atcr){
     coverage
     ) )
 
-
 }
-
-as.matrix.atacr <- function(atcr, which = "bait_windows"){
+#' returns given subset of data in atacr object as a matrix
+#' @export
+#' @param x an atacr object
+#' @param \dots other options for generic
+#' @param which the subset of data to work on
+#' @return matrix of counts in subset
+as.matrix.atacr <- function(x, ..., which = "bait_windows"){
+  atcr <- x
   return( SummarizedExperiment::assay(atcr[[which]]))
 }
 
-as.data.frame.atacr <- function(atcr){
+#' returns dataframe of data in atacr object
+#' @export
+#' @param x object to print
+#' @param \dots other options for generic
+#' @return dataframe
+as.data.frame.atacr <- function(x, ...){
+  atcr <- x
   if (is.null(atcr[["dataframe"]])){
     bw <- as.matrix.atacr(atcr, which = "bait_windows")
     nbw <- as.matrix.atacr(atcr, which = "non_bait_windows")
@@ -50,11 +72,12 @@ as.data.frame.atacr <- function(atcr){
     colnames(nbw_df) <- c("name", "sample", "count")
     nbw_df$window_type <- factor(rep("non_bait_windows", nrow(nbw_df)))
     df <- rbind(bw_df,nbw_df)
+    name <- NULL #deal with NSE of devtools::check()
     df <- tidyr::separate(df, name, c("chromosome", "start", "stop"), sep="[:-]" )
     df$start <- as.integer(df$start)
     df$stop <- as.integer(df$stop)
     df$chromosome <- factor(df$chromosome)
-    atcr[["dataframe"]] <- df 
+    atcr[["dataframe"]] <- df
     return(df)
   }
   else{
@@ -62,18 +85,19 @@ as.data.frame.atacr <- function(atcr){
   }
 
 }
-
-plot.atacr <- function(atcr){
-
+#' returns summary plot of data in atacr object
+#' @export
+#' @param x atacr object
+#' @param \dots extra options for generic
+#' @return gridExtra plot
+plot.atacr <- function(x, ...){
+ atcr <- x
 #histogram of coverages by sample and window type
-p1 <- atacr::coverage_histogram(atcr)
+p1 <- coverage_histogram(atcr)
 
 #density of coverage by chromosome region, bait windows
-p2 <-  atacr::chromosome_coverage(atcr)
-
+p2 <-  chromosome_coverage(atcr)
 
 return(gridExtra::grid.arrange(p1,p2, nrow=2))
-
-
 
 }

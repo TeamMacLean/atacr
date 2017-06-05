@@ -7,9 +7,11 @@
 median_virtual_experiment(sample_matrix)
 }
 \arguments{
-\item{data}{a list of SummarizedExperiment objects from atacr::make_counts()}
+\item{sample_matrix}{counts extracted from a SummarizedExperiment object}
+}
+\value{
+the median of the provided counts, columnwise
 }
 \description{
 a median of window values across all samples in a vector, for ma plots
 }
-

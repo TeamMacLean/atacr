@@ -9,10 +9,11 @@ get_t(data, indices)
 \arguments{
 \item{data}{matrix of sample data}
 
-\item{indices}{indices selected by boot::boot
-return t the t statistic from Student's t-test}
+\item{indices}{indices selected by boot::boot}
+}
+\value{
+t the t statistic from Student's t-test or NA if error
 }
 \description{
 gets t-statistic for two vectors of data, x and y
 }
-

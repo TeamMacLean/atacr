@@ -7,7 +7,19 @@
 estimate_fdr(data, treatment_a, treatment_b, which = "bait_windows",
   iterations = 10, fdr_level = 0.05)
 }
+\arguments{
+\item{data}{an atacr object}
+
+\item{treatment_a}{the first treatment to consider}
+
+\item{treatment_b}{the second treatment to consider}
+
+\item{which}{the subset of windows to consider}
+
+\item{iterations}{the number of bootstrap iterations to perform}
+
+\item{fdr_level}{the level at which to mark FDR as significant}
+}
 \description{
 Estimate FDR and significantly different windows
 }
-
