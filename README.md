@@ -3,6 +3,7 @@
 
 [![Travis-CI Build Status](https://travis-ci.org/TeamMacLean/atacr.svg?branch=master)](https://travis-ci.org/TeamMacLean/atacr)
 
+![Downloads](http://cranlogs-dev.r-pkg.org/badges/atacr)
 
 Description: atacr helps with the analysis of count data from ATAC-seq experiments.
 Using BioConductor RangedSummarizedExperiment objects, atacr implements a set of helper
