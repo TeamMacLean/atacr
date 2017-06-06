@@ -3,3 +3,5 @@ inst^.*\.Rproj$
 ^\.travis\.yml$
 ^.*\.Rproj$
 LICENSE
+^README\.Rmd$
+^README-.*\.png$
