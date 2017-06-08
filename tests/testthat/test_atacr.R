@@ -67,3 +67,23 @@ test_that("calc_quantiles() returns list() when threshold == NULL", {
   expect_is(l, "list")
   expect_has_all_and_only_these_members(l, c("bait_windows", "non_bait_windows"))
 })
+
+test_that("get_fit() gets fit", {
+  expect_equal(TRUE, FALSE)
+})
+
+test_that("get_fits() gets fits", {
+  expect_equal(TRUE, FALSE)
+})
+
+test_that("get_expected_values() returns right random numbers",{
+  set.seed(1234)
+  expect_vectors_equal(get_expected_values(c(1,2,3,4,1,2,3,4),dist="norm"),c(1.057280,2.831591,3.796155,-0.303645,3.012902,3.104852,1.813054,1.846650))
+})
+
+test_that("observed_expected_bins() gives right values", {
+  l <- observed_expected_bins(c(1,2,3,4,1,2,3,4))
+  expect_has_all_and_only_these_members(l, c("observed", "expected"))
+  expect_vectors_equal(l$observed, c(8))
+  expect_vectors_equal(l$expected, c(8))
+})
