@@ -3,19 +3,6 @@ Sys.setenv("R_TESTS" = "")
 
 context("summary and count functions")
 
-
-expect_vectors_equal <- function(a,b){
-  if (sum(a %in% b) == length(a) & length(setdiff(a,b)) == 0){
-    return(TRUE)
-  }else{
-   return(FALSE)
-  }
-}
-
-expect_has_all_and_only_these_members <- function(l, v){
-  return(expect_vectors_equal(names(l), v))
-}
-
 test_that("target_count_summary() returns proper dataframe", {
 
   smry <- target_count_summary(sim_counts)
@@ -68,13 +55,13 @@ test_that("calc_quantiles() returns list() when threshold == NULL", {
   expect_has_all_and_only_these_members(l, c("bait_windows", "non_bait_windows"))
 })
 
-test_that("get_fit() gets fit", {
-  expect_equal(TRUE, FALSE)
-})
+#test_that("get_fit() gets fit", {
+#  expect_equal(TRUE, FALSE)
+#})
 
-test_that("get_fits() gets fits", {
-  expect_equal(TRUE, FALSE)
-})
+#test_that("get_fits() gets fits", {
+#  expect_equal(TRUE, FALSE)
+#})
 
 test_that("get_expected_values() returns right random numbers",{
   set.seed(1234)

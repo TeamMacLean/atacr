@@ -44,7 +44,7 @@ bootstrap_t <- function(data, iterations=10){
 
 
 
-select_comparisons <- function(data, which = "bait_windows" , treatment_a, treatment_b){
+select_comparisons <- function(data, treatment_a, treatment_b, which = "bait_windows"){
 
     l <- list()
     sample_matrix <- SummarizedExperiment::assay(data[[which]])
@@ -86,20 +86,20 @@ get_fc <- function(result){
 estimate_fdr <- function(data, treatment_a, treatment_b, which = "bait_windows", iterations=10,fdr_level=0.05){
 
   sample_matrix <- SummarizedExperiment::assay(data[[which]])
-  comparison_list <- select_comparisons(data, which, treatment_a, treatment_b)
+  comparison_list <- select_comparisons(data, treatment_a, treatment_b, which = which)
   comparison_matrix <- cbind(comparison_list$treatment_a, comparison_list$treatment_b )
   treatment_a_names <- data$sample_names[which(data$treatments == treatment_a)]
   treatment_b_names <- data$sample_names[which(data$treatments == treatment_b)]
 
-  #if( length(treatment_a_names) < 3 | length(treatment_b_names) < 3  ){
-  #  message <- paste("Need at least 3 replicates to perform estimate bootstrap t value. Have", length(treatment_a_names), "for", treatment_a, "and", length(treatment_b_names), "for", treatment_b)
-  #  stop(message)
-  #}
+  if( length(treatment_a_names) < 3 | length(treatment_b_names) < 3  ){
+    message <- paste("Need at least 3 replicates to perform estimate bootstrap t value. Have", length(treatment_a_names), "for", treatment_a, "and", length(treatment_b_names), "for", treatment_b)
+    stop(message)
+  }
 
-  #if(length(treatment_a_names) != length(treatment_b_names) ){
-  #  message <- paste("Must have equal number of replicates in each treatment. Have", length(treatment_a_names), "for", treatment_a, "and", length(treatment_b_names), "for", treatment_b)
-  #  stop(message)
-  #}
+  if(length(treatment_a_names) != length(treatment_b_names) ){
+    message <- paste("Must have equal number of replicates in each treatment. Have", length(treatment_a_names), "for", treatment_a, "and", length(treatment_b_names), "for", treatment_b)
+    stop(message)
+  }
 
   #calc bootstrap p-values
 
