@@ -4,7 +4,7 @@
 #' @param which the subdivision of the genome to calculate correlations either 'whole_genome', 'bait_windows' or 'non_bait_windows'
 #' @param method the correlation method to use. Any supported by `cor()` is useable
 #' @return a ggplot object from geom_raster()
-sample_correlation_heatmap <- function(data, which="bait_windows", method="pearson"){
+sample_correlation_heatmap <- function(data, which="bait_windows", method="pearson"){ # nocov start
   mat <- SummarizedExperiment::assay(data[[which]])
   hm <- get_heatmap(mat, method)
   return(hm)
@@ -194,4 +194,4 @@ qqarb <- function(obs, dist = "norm" ){
   expected_values <- observed_values <- NULL
   p <- ggplot2::ggplot(df) +ggplot2::aes(expected_values, observed_values) + ggplot2::geom_point() + ggplot2::geom_abline(intercept = 0, slope = 1) + ggthemes::scale_color_ptol() + ggthemes::scale_fill_ptol() + ggplot2::theme_minimal()
   return(p)
-}
+} # nocov end

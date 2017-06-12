@@ -42,10 +42,10 @@ library_size_normalisation_internal <- function(se){
 #' calculate scaling factors for library size
 #' @export
 #' @param se a SummarizedExperiment object such as 'bait_windows' from atacr::make_counts()
-library_size_scaling_factors <- function( se ){
+library_size_scaling_factors <- function( se ){ # nocov start
   sample_matrix <- SummarizedExperiment::assay( se )
   return(get_scaling_factors(sample_matrix))
-}
+} # nocov end
 
 get_scaling_factors <- function( sample_matrix ){
   mve_sum <- sum(median_virtual_experiment( sample_matrix ))
@@ -53,10 +53,10 @@ get_scaling_factors <- function( sample_matrix ){
   return(scaling_factors)
 }
 
-scale_normalise <- function( sample_matrix, scaling_factors){
+scale_normalise <- function( sample_matrix, scaling_factors){ #nocov start
   scaled <- sample_matrix %*% diag(scaling_factors)
   return(scaled)
-}
+} #nocov end
 
 #' extract scaling factors from control windows (often from a file of control gene positions)
 #' @export

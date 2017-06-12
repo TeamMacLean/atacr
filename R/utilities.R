@@ -8,7 +8,7 @@
 #' @param dispersion_factor expected increase in size of dispersion relative to mean
 #' @return a RangedSummarizedExperiment object with count matrix as specified
 #' @export
-make_synthetic_count_SE <- function(num_windows, prop_baits = 0.5, diff_prop=0.1, reps = 3,  diff_by = 2, expected_coverage = 30, dispersion_factor = 100){
+make_synthetic_count_SE <- function(num_windows, prop_baits = 0.5, diff_prop=0.1, reps = 3,  diff_by = 2, expected_coverage = 30, dispersion_factor = 100){ # nocov start
 
   #the number of rows in the bait matrix
   num_bait_rows <- floor(num_windows * prop_baits)
@@ -106,5 +106,5 @@ make_synthetic_data <- function(num_windows){
   r$dataframe <- as.data.frame(r)
  print(str(r))
   return(r)
-}
+} #nocov end
 
