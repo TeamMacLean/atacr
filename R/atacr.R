@@ -136,6 +136,11 @@ get_fit <- function(dist, data = NULL, which = "bait_windows", keep = c("chisqpv
   return(r)
 }
 
+se_contains_only_integers <- function(data,which){
+  a <- SummarizedExperiment::assay(data[[which]])
+  return(all(a == as.integer(a)))
+}
+
 #' run distribution fitting for all samples in a data set using multiple named
 #' distributions
 #' @param data a list of SummarizedExperiment objects from atacr::make_counts()
@@ -150,6 +155,10 @@ get_fits <- function(data,
                      which = "bait_windows",
                      keep = c("chisqpvalue", "cvm", "ad", "ks"),
                      min_count = 0 ){
+
+  if ( all(c("pois", "nbinom") %in% dists) && !se_contains_only_integers(data, which)){
+    stop("can't do fits for discrete distribution with non-integer values")
+  }
 
   result <- lapply(dists, get_fit,
                    data,
@@ -231,6 +240,19 @@ make_UpSetR <- function(df){
   return(r)
 }
 
+#' sim_counts - simulated count data
+#'
+#' The data `sim_counts` is a simulated data set with computer generated window counts for three replicates of each of two conditions in experiments with 500 bait and non-bait windows. We'll set each experiment to have 10 \% of windows differentially accessible at a difference of approximately 2 fold.
+#'
+#'
+#' Counts in bait windows for "control" samples  will be modelled as \eqn{C \sim NB(\mu = 30, size = 10\mu)}.
+#'
+#' Counts in bait windows for "treatment" samples will be modelled as \eqn{C \cdot unif(0.8,1.2)}.
+#'
+#' Differentially accessible bait windows will be modelled as \eqn{C_{1..50} \cdot \mathcal{N}( \mu=2,\sigma = \mu/2)}
+#' @format A SummarizedExperiment object
+"sim_counts"
+
 #' Simulated count data
 #'
 #' The data `sim_counts` is a simulated data set with computer generated window counts for three replicates of each of two conditions in experiments with 500 bait and non-bait windows. We'll set each experiment to have 10 \% of windows differentially accessible at a difference of approximately 2 fold.
@@ -240,5 +262,10 @@ make_UpSetR <- function(df){
 #' Counts in bait windows for "treatment" samples will be modelled as \eqn{C \cdot unif(0.8,1.2)}.
 #'
 #' Differentially accessible bait windows will be modelled as \eqn{C_{1..50} \cdot \mathcal{N}( \mu=2,\sigma = \mu/2)}
-#' @format A SummarizedExperiment object
+#' @format A list of SummarizedExperiment objects
 "sim_counts"
+
+#' small_counts - simulated count data
+#' The data `small_counts` is basically the same thing as `sim_counts` with smaller sample of 100 bait / non-bait windows.
+#' @format a list of SummarizedExperiment objects
+"small_counts"

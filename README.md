@@ -1,13 +1,5 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-
-[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active) [![Licence](https://img.shields.io/badge/licence-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html) [![Build Status](https://travis-ci.org/TeamMacLean/atacr.svg?branch=master)](https://travis-ci.org/TeamMacLean/atacr) [![codecov](https://codecov.io/gh/TeamMacLean/atacr/branch/master/graph/badge.svg)](https://codecov.io/gh/TeamMacLean/atacr)
-
-------------------------------------------------------------------------
-
-[![minimal R version](https://img.shields.io/badge/R%3E%3D-3.0.0-6666ff.svg)](https://cran.r-project.org/) [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/atacr)](https://cran.r-project.org/package=atacr) [![packageversion](https://img.shields.io/badge/Package%20version-0.2.0-orange.svg?style=flat-square)](commits/master)
-
-------------------------------------------------------------------------
 atacr
 =====
 
@@ -39,45 +31,45 @@ summary(sim_counts)
 #>  
 #>  On/Off target read counts:
 #>           sample off_target on_target percent_on_target
-#> 1   control_001        355  15001.00          97.68820
-#> 2   control_002        359  15170.00          97.68820
-#> 3   control_003        360  14976.00          97.65258
-#> 4 treatment_001        364  16665.77          97.86257
-#> 5 treatment_002        405  16755.63          97.63995
-#> 6 treatment_003        376  16640.31          97.79036 
+#> 1   control_001        312     15160          97.98345
+#> 2   control_002        347     14777          97.70563
+#> 3   control_003        339     15115          97.80639
+#> 4 treatment_001        321     16955          98.14193
+#> 5 treatment_002        346     16490          97.94488
+#> 6 treatment_003        335     17064          98.07460 
 #>  Quantiles: 
 #>  $bait_windows
 #>     control_001 control_002 control_003 treatment_001 treatment_002
-#> 1%        18.99       18.00       18.00      16.99631      15.82787
-#> 5%        22.00       21.95       20.95      19.68127      21.01409
-#> 95%       40.00       40.00       39.00      61.10000      60.00000
-#> 99%       43.00       44.01       44.00     115.12000     113.04000
+#> 1%        19.99       16.99          19         16.99         16.00
+#> 5%        22.00       20.00          22         20.00         19.00
+#> 95%       40.00       40.00          39         63.00         65.05
+#> 99%       45.00       46.00          44        109.00         89.03
 #>     treatment_003
-#> 1%       15.67291
-#> 5%       19.27702
-#> 95%      62.10000
-#> 99%     111.03000
+#> 1%          16.00
+#> 5%          21.00
+#> 95%         61.00
+#> 99%        109.06
 #> 
 #> $non_bait_windows
 #>     control_001 control_002 control_003 treatment_001 treatment_002
-#> 1%            0           0           0             0             0
-#> 5%            0           0           0             0             0
-#> 95%           3           4           3             4             4
-#> 99%           4           4           4             4             4
+#> 1%            0           0        0.00             0          0.00
+#> 5%            0           0        0.00             0          0.00
+#> 95%           3           4        3.05             3          3.05
+#> 99%           4           4        4.00             4          4.00
 #>     treatment_003
 #> 1%              0
 #> 5%              0
-#> 95%             4
+#> 95%             3
 #> 99%             4
 #>  
 #>  Read depths:
 #>           sample off_target on_target
-#> 1   control_001      0.710  30.00200
-#> 2   control_002      0.718  30.34000
-#> 3   control_003      0.720  29.95200
-#> 4 treatment_001      0.728  33.33155
-#> 5 treatment_002      0.810  33.51125
-#> 6 treatment_003      0.752  33.28062
+#> 1   control_001      0.624    30.320
+#> 2   control_002      0.694    29.554
+#> 3   control_003      0.678    30.230
+#> 4 treatment_001      0.642    33.910
+#> 5 treatment_002      0.692    32.980
+#> 6 treatment_003      0.670    34.128
 ```
 
 ``` r

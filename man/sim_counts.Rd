@@ -3,15 +3,26 @@
 \docType{data}
 \name{sim_counts}
 \alias{sim_counts}
-\title{Simulated count data}
+\alias{sim_counts}
+\title{sim_counts - simulated count data}
 \format{A SummarizedExperiment object}
 \usage{
+sim_counts
+
 sim_counts
 }
 \description{
 The data `sim_counts` is a simulated data set with computer generated window counts for three replicates of each of two conditions in experiments with 500 bait and non-bait windows. We'll set each experiment to have 10 \% of windows differentially accessible at a difference of approximately 2 fold.
+
+The data `sim_counts` is a simulated data set with computer generated window counts for three replicates of each of two conditions in experiments with 500 bait and non-bait windows. We'll set each experiment to have 10 \% of windows differentially accessible at a difference of approximately 2 fold.
 }
 \details{
+Counts in bait windows for "control" samples  will be modelled as \eqn{C \sim NB(\mu = 30, size = 10\mu)}.
+
+Counts in bait windows for "treatment" samples will be modelled as \eqn{C \cdot unif(0.8,1.2)}.
+
+Differentially accessible bait windows will be modelled as \eqn{C_{1..50} \cdot \mathcal{N}( \mu=2,\sigma = \mu/2)}
+
 Counts in bait windows for "control" samples  will be modelled as \eqn{C \sim NB(\mu = 30, size = 10\mu)}.
 
 Counts in bait windows for "treatment" samples will be modelled as \eqn{C \cdot unif(0.8,1.2)}.
