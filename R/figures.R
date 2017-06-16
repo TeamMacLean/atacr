@@ -194,4 +194,108 @@ qqarb <- function(obs, dist = "norm" ){
   expected_values <- observed_values <- NULL
   p <- ggplot2::ggplot(df) +ggplot2::aes(expected_values, observed_values) + ggplot2::geom_point() + ggplot2::geom_abline(intercept = 0, slope = 1) + ggthemes::scale_color_ptol() + ggthemes::scale_fill_ptol() + ggplot2::theme_minimal()
   return(p)
-} # nocov end
+}
+
+get_mart <- function(ensembl, ens_dataset){
+  mart <- switch(ensembl,
+    plants = biomaRt::useMart("plants_mart",
+      host="plants.ensembl.org",
+      dataset=ens_dataset),
+    ensembl = biomaRt::useMart("ensembl", dataset=ens_dataset)
+  )
+  return(mart)
+}
+
+get_gene_coords <- function(gene_id, mart){
+  filter <- switch(mart@biomart,
+    plants_mart = "tair_locus",
+    ENSEMBL_MART_ENSEMBL = "with_entrezgene"
+    )
+
+  coords <- biomaRt::getBM(attributes=c("chromosome_name", "start_position", "end_position", "strand"), filters=filter, values = gene_id, mart=mart )
+  return(coords)
+}
+select_colours <-function(data){
+  t <- treatments(data)
+  allcols <- RColorBrewer::brewer.pal(8, "Dark2")
+  allcols <- rep(allcols, ceiling(length(t) / length(allcols)) )
+  cols <- allcols[1:length(t)]
+  names(cols) <- t
+  tr <- NULL
+  for (i in data$sample_names){tr <- c(tr, treatment_from_name(data, i))}
+  return(cols[tr])
+}
+
+get_coverage_in_regions <- function(data, which, coords){
+  sname <- coords$chromosome_name[[1]]
+  strt <- coords$start_position[[1]]
+  stp <- coords$end_position[[1]]
+  strand <- coords$strand[[1]]
+
+  roi <- GenomicRanges::GRanges(seqnames=sname, ranges=strt:stp )
+  se <- IRanges::subsetByOverlaps(data[[which]], roi)
+  colrs <- select_colours(data) #c(rep("grey", 2), rep("red", 2))
+  intens <- GenomeGraphs::makeGenericArray(
+    intensity = SummarizedExperiment::assay(se),
+    probeStart = se@rowRanges@ranges@start,
+    #probeEnd = (se@rowRanges@ranges@start + se@rowRanges@ranges@width),
+#    nProbes = nrow(se),
+ #   probeId = se@rowRanges@ranges@NAMES,
+    dp = GenomeGraphs::DisplayPars(color = colrs, size=2, lwd = 2, type="line", pointSize = 1)
+  )
+  return(intens)
+}
+
+#' coverage over gene model
+#' @export
+#' @param data atacr object
+#' @param gene_id the id of the gene to plot around
+#' @param which the subset of the data to plot.
+#' @param ensembl one of 'plants', 'ensembl' - which version of ensembl to connect to
+#' @param ens_dataset which ensembl dataset to connect to
+#' @return plot object
+view_gene <- function(data,gene_id,which="bait_windows", ensembl = "plants", ens_dataset = "athaliana_eg_gene"){
+
+  ##get connection to biomart
+  mart <- get_mart(ensembl, ens_dataset)
+
+  ##extract gene coords from ensembl
+  coords <- get_gene_coords(gene_id, mart)
+  start <- coords$start_position[[1]]
+  end <- coords$end_position[[1]]
+  chrom <- coords$chromosome[[1]]
+  strand <- as.character(coords$strand[[1]])
+  ##get coverage count in each window over coords
+  values <- get_coverage_in_regions(data, which, coords)
+
+  if(strand ==  "1"){
+    axis <- GenomeGraphs::makeGenomeAxis(add53 = TRUE, littleTicks=TRUE, dp =GenomeGraphs::DisplayPars(cex=0.5) )
+    strand = "+"
+  } else {
+    axis <- GenomeGraphs::makeGenomeAxis(add35 = TRUE, littleTicks=TRUE, dp =GenomeGraphs::DisplayPars(cex=0.5))
+    strand = "-"
+    }
+
+  ##get features in gene region from ensembl
+
+  g <- GenomeGraphs::makeGeneRegion(
+    start = start,
+    end = end,
+    chromosome = chrom,
+    strand = strand,
+    biomart = mart,
+    dp = GenomeGraphs::DisplayPars(protein_coding = "steelblue")
+    )
+
+  view <- list(
+    GenomeGraphs::makeTitle(gene_id),
+    "counts" = values,
+    "gene" = g,
+    axis
+    )
+
+  GenomeGraphs::gdPlot(view, minBase = start, maxBase = end)
+
+
+}
+# nocov end

@@ -28,6 +28,19 @@ names_from_treatment <- function(data, treatment){
   return(data$sample_names[which(data$treatments == treatment)] )
 }
 
+#' return list of treatment names
+#' @export
+#' @param data an atacr object
+#' @return char vector of unique treatment names
+treatments <- function(data){
+  return( unique(data$treatments))
+}
+
+treatment_from_name <- function(data, sample_name){
+  return(data$treatments[which(data$sample_names == sample_name)] )
+}
+
+
 #' do a library size normalisation
 #' @param se a SummarizedExperiment object such as 'bait_windows' from atacr::make_counts()
 library_size_normalisation_internal <- function(se){

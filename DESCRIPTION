@@ -16,10 +16,13 @@ License: GPL-3
 LazyData: TRUE
 Imports:
     boot,
+    biomaRt,
     csaw,
     dplyr,
     fitdistrplus,
+    GenomeGraphs,
     GenomicRanges,
+    grid,
     gridExtra,
     ggplot2,
     ggthemes,
@@ -27,6 +30,7 @@ Imports:
     IRanges,
     magrittr,
     plyr,
+    RColorBrewer,
     reshape,
     reshape2,
     S4Vectors,
