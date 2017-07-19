@@ -1,16 +1,15 @@
 Package: atacr
 Type: Package
-Title: Analysing ATAC-seq data
-Version: 0.2.0
+Title: Analysing ATAC-Seq Data
+Version: 0.3.1
 Authors@R: c(
   person("Dan","MacLean", email="dan.maclean@tsl.ac.uk", role=c("aut", "cre")),
   person("Ram-Krishna", "Shrestha", email="ram-krishna.shrestha@tsl.ac.uk", role="aut"))
-Description: atacr helps with the analysis of count data from ATAC-seq experiments.
+Description: This package helps with the analysis of count data from ATAC-seq experiments.
     Using BioConductor RangedSummarizedExperiment objects, atacr implements a set of helper
     functions and quality control plots specific to the analysis of particularly windows.
-    Especially, atacr is useful for performing control window based normalisations and for
-    easily running tests for differentially accessible windows in common reference designs with 
-    multiclass data.
+    Especially, atacr is useful for performing control window based normalizations and for
+    easily running tests for differentially accessible windows in common reference designs.
 Depends: R (>= 3.0.0)
 License: GPL-3
 LazyData: TRUE
@@ -24,6 +23,7 @@ Imports:
     GenomicRanges,
     grid,
     gridExtra,
+    ggjoy,
     ggplot2,
     ggthemes,
     heatmap3,
