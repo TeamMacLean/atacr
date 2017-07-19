@@ -43,7 +43,7 @@ plot(sim_counts)
 These plots can be generated individually with the following functions
 
 ```{r, eval=FALSE, include=FALSE}
-coverage_histogram(sim_counts)
+coverage_summary(sim_counts)
 chromosome_coverage(sim_counts)
 ```
 

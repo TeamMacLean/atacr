@@ -134,30 +134,48 @@ plot_count_by_chromosome <- function(data, which="bait_windows", method = "bar")
 #' @param which the subdivision of the genome to plot (default = bait and non_bait windows)
 #' @param sample the sample to plot (default = all )
 #' @return a ggplot2 object
-coverage_histogram <- function(data, which = NULL, sample = NULL ){
+coverage_summary <- function(data, which = NULL, sample = NULL ){
   all <- as.data.frame(data)
-
-  if (is.null(which) & is.null(sample)){
+  samp <- sample
+   cov_joy_plot <- function(data){
+    p <- ggplot2::ggplot(data) +
+      ggplot2::aes(x = count, y =sample) +
+      ggjoy::geom_joy(
+        ggplot2::aes(
+          fill = window_type )
+      ) +
+      ggplot2::facet_grid(. ~ window_type ,
+        scales = "free") +
+      ggthemes::scale_color_ptol()  +
+      ggthemes::scale_fill_ptol() +
+      ggplot2::theme_minimal() +
+      ggplot2::ggtitle("Frequency of windows with read counts") +
+      ggplot2::labs(x ="Read Count", y = "Number of Windows") +
+      ggplot2::theme(legend.position="none")
+    return(p)
+  }
+  if (is.null(which) & is.null(samp)){
     count <- window_type <- NULL
-    p <- ggplot2::ggplot(all) + ggplot2::aes(x = count) + ggplot2::geom_histogram(ggplot2::aes(colour = window_type, fill = window_type)) + ggplot2::facet_grid(window_type ~ sample, scales = "free") + ggthemes::scale_color_ptol() + ggthemes::scale_fill_ptol() + ggplot2::theme_minimal() + ggplot2::ggtitle("Frequency of windows with read counts") + ggplot2::labs(x ="Read Count", y = "Number of Windows")
+    p <- cov_joy_plot(all)
     return(p)
   }
 
-  if (is.null(which) & !is.null(sample)){
-    d <- all %>% dplyr::filter(sample == sample)
-    p <- ggplot2::ggplot(d) + ggplot2::aes(x = count) + ggplot2::geom_histogram(ggplot2::aes(colour= window_type, fill = window_type)) + ggplot2::facet_wrap( ~ window_type ) + ggthemes::scale_color_ptol() + ggthemes::scale_fill_ptol() + ggplot2::theme_minimal() + ggplot2::ggtitle("Frequency of windows with read counts") + ggplot2::labs(x= "Read Count", y="Number of Windows")
-  return(p)
+  if (is.null(which) & !is.null(samp)){
+    d <- all %>% dplyr::filter(sample == samp)
+    p <- cov_joy_plot(d)
+    return(p)
   }
 
-  if (!is.null(which) & is.null(sample)){
+  if (!is.null(which) & is.null(samp)){
     d <- all %>% dplyr::filter(window_type == which)
-    p <- ggplot2::ggplot(d) + ggplot2::aes(x = count) + ggplot2::geom_histogram(ggplot2::aes(colour = window_type, fill = window_type)) + ggplot2::facet_wrap( ~ sample ) + ggthemes::scale_color_ptol() + ggthemes::scale_fill_ptol() + ggplot2::theme_minimal() + ggplot2::ggtitle("Frequency of windows with read counts") + ggplot2::labs(x = "Read Count", y = "Number of Windows")
+    p <- cov_joy_plot(d)
   return(p)
   }
 
-  if (!is.null(which) & !is.null(sample)){
-    d <- all %>% dplyr::filter(window_type == which & sample == sample)
-    p <- ggplot2::ggplot(d) + ggplot2::aes(x = count) + ggplot2::geom_histogram(ggplot2::aes(colour = window_type, fill = window_type)) + ggthemes::scale_color_ptol() + ggthemes::scale_fill_ptol() + ggplot2::theme_minimal() + ggplot2::ggtitle("Frequency of windows with read counts") + ggplot2::labs(x = "Read Count", y = "Number of Windows")
+  if (!is.null(which) && !is.null(samp)){
+    d <- all %>% dplyr::filter(window_type == which) %>%
+      dplyr::filter(sample == samp)
+    p <- cov_joy_plot(d)
     return(p)
   }
 

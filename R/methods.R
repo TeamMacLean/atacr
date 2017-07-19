@@ -95,7 +95,7 @@ as.data.frame.atacr <- function(x, ...){
 plot.atacr <- function(x, ...){
  atcr <- x
 #histogram of coverages by sample and window type
-p1 <- coverage_histogram(atcr)
+p1 <- coverage_summary(atcr)
 
 #density of coverage by chromosome region, bait windows
 p2 <-  chromosome_coverage(atcr)
