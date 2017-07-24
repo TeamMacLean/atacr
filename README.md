@@ -4,7 +4,6 @@
 [![packageversion](https://img.shields.io/badge/Package%20version-0.3.1-orange.svg?style=flat-square)](commits/master)
 ----
 [![Last-changedate](https://img.shields.io/badge/last%20change-"2017--07--19"-yellowgreen.svg)](/commits/master)
-
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 atacr
 =====
@@ -80,7 +79,7 @@ summary(sim_counts)
 
 ``` r
 plot(sim_counts)
-#> `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+#> Picking joint bandwidth of 0.966
 ```
 
 ![](README-unnamed-chunk-2-1.png)
