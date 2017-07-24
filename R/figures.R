@@ -13,23 +13,15 @@ sample_correlation_heatmap <- function(data, which="bait_windows", method="pears
 #' @param counts a matrix of counts
 #' @param method the correlation method to use, any supported by `cor()` is useable
 #' @return ggplot2 plot
-get_heatmap <- function(counts, method="pearson", namesort=TRUE){
-
-  cors <- numeric(0)
-  for (c1 in colnames(counts)){
-    for (c2 in colnames(counts)){
-      cors <- c(cors, cor(counts[,c1], counts[,c2], method=method))
-    }
-  }
-  sample_1 <- NULL
-  sample_2 <- NULL #deal with devtools::check()
-  df <- expand.grid(sample_1=colnames(counts), sample_2=colnames(counts))
-  df <- data.frame(sample_1=df$sample_1, sample_2=df$sample_2, correlation=cors)
-
-  correlation <- NULL #deal with devtools::check()
-  heatmap <- ggplot2::ggplot(df, ggplot2::aes(sample_1, sample_2, fill = correlation)) + ggplot2::geom_raster()  + ggthemes::scale_color_ptol() + ggplot2::theme_minimal() + ggplot2::ggtitle("Sample Similarities") + ggplot2::labs(x= NULL, y=NULL)
+get_heatmap <- function(counts, method="pearson"){
 
 
+
+  Var1 <- Var2 <- value <-  NULL
+  cors <- cor(counts, method=method)
+  cors <- cors[order(colnames(cors)), order(colnames(cors))]
+  df <- reshape2::melt(cors)
+  heatmap <- ggplot2::ggplot(df, ggplot2::aes(Var1, Var2, fill = value)) + ggplot2::geom_raster()  + ggthemes::scale_color_ptol() + ggplot2::theme_minimal() + ggplot2::ggtitle("Sample Similarities") + ggplot2::labs(x= NULL, y=NULL)
 
   return(heatmap)
 }

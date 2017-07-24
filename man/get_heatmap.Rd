@@ -4,7 +4,7 @@
 \alias{get_heatmap}
 \title{generate heatmap from matrix of counts}
 \usage{
-get_heatmap(counts, method = "pearson")
+get_heatmap(counts, method = "pearson", namesort = TRUE)
 }
 \arguments{
 \item{counts}{a matrix of counts}
