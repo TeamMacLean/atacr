@@ -31,6 +31,7 @@ get_heatmap <- function(counts, method="pearson", namesort=TRUE){
    df$sample_1 <- factor(df$sample_1, levels=df$sample_1[order(unique(df$sample_1))])
    df$sample_2 <- as.character(data$sample_2)
    df$sample_2 <- factor(df$sample_2, levels=df$sample_2[order(unique(df$sample_2))])
+
   }
 
   correlation <- NULL #deal with devtools::check()
