@@ -117,7 +117,7 @@ as.data.frame.atacr <- function(x, ...) {
 
 #' returns summary plot of data in atacr object
 #' @method plot atacr
-#' @S3method plot atacr
+#' @export
 #' @param x atacr object
 #' @param \dots extra options for generic
 #' @return gridExtra plot

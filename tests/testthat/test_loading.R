@@ -15,21 +15,49 @@ test_that("get_bait_regions_from_text() gets correct bait regions", {
 
 })
 
+atac_data <-
+  make_counts('individual_bait_regions.txt',
+    'sample_treatment_bam_mappings_for_test.csv')
 
+rnaseq_data <-
+  make_counts('bait_genes.gff',
+    'sample_treatment_bam_mappings_for_test.csv',
+    is_rnaseq = TRUE)
 
-test_that("when loading bam files, region names load correctly", {
+test_that("when loading RNASeq, genome subsections are RangedSummarizedExperiments",
+  {
+    expect_is(rnaseq_data$whole_genome, "RangedSummarizedExperiment")
+    expect_is(rnaseq_data$bait_windows, "RangedSummarizedExperiment")
+    expect_is(rnaseq_data$non_bait_windows,
+      "RangedSummarizedExperiment")
 
-  data <- make_counts('individual_bait_regions.txt', 'sample_treatment_bam_mappings_for_test.csv')
-  expect_is(data$whole_genome, "RangedSummarizedExperiment")
-  expect_is(data$bait_windows, "RangedSummarizedExperiment")
-  expect_is(data$non_bait_windows, "RangedSummarizedExperiment")
+  })
 
-  ## check that first range in each set of windows (genome, bait, none_baits) has right rownames - presumably is parsed correctly... this tests whether the windows are loaded correctly
+test_that("when loading ATACSeq, genome subsections are RangedSummarizedExperiments",
+  {
+    expect_is(atac_data$whole_genome, "RangedSummarizedExperiment")
+    expect_is(atac_data$bait_windows, "RangedSummarizedExperiment")
+    expect_is(atac_data$non_bait_windows, "RangedSummarizedExperiment")
 
-  expect_that(names(data$whole_genome)[1], equals("Chr1:1-50"))
-  expect_that(names(data$non_bait_windows)[1], equals("Chr1:1-50"))
-  expect_that(names(data$bait_windows)[1], equals("Chr1:245951-246000"))
-  expect_that(TRUE, equals(TRUE))
+  })
 
+test_that("when loading bam files for ATACSeq, region names load correctly", {
+  # check that first range in each set of windows (genome, bait, none_baits) has right rownames - presumably is parsed correctly... this tests whether the windows are loaded correctly
+
+  expect_that(names(atac_data$whole_genome)[1], equals("Chr1:1-50"))
+  expect_that(names(atac_data$non_bait_windows)[1], equals("Chr1:1-50"))
+  expect_that(names(atac_data$bait_windows)[1],
+    equals("Chr1:245951-246000"))
 
 })
+
+test_that("when loading BAM files for RNAseq, region names are computed correctly",
+  {
+    expect_that(names(rnaseq_data$non_bait_windows)[1],
+      equals("Chr1:1-246000"))
+    expect_that(names(rnaseq_data$non_bait_windows)[2],
+      equals("Chr1:246201-246700"))
+    expect_that(names(rnaseq_data$bait_windows)[1], equals("FakeGeneA"))
+    expect_that(names(rnaseq_data$bait_windows)[2], equals("FakeGeneB"))
+
+  })

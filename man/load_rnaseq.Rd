@@ -4,7 +4,7 @@
 \alias{load_rnaseq}
 \title{populate the result object with the RangedSummarizedExperiment from the bam files from RNA seq data. Called from make_counts() when is_rnaseq == TRUE.}
 \usage{
-load_rnaseq(result, filter_params, window_file, gene_id_col = "Name")
+load_rnaseq(result, filter_params, window_file, gene_id_col = "ID")
 }
 \arguments{
 \item{result}{list from make_counts()}
@@ -13,7 +13,7 @@ load_rnaseq(result, filter_params, window_file, gene_id_col = "Name")
 
 \item{window_file}{a filename of a CSV file with the bait regions}
 
-\item{gene_id_col}{a character string stating which attribute name to take from the final column of the GFF file to use for the window name in RNASeq data. Usually this is the name of the gene. Default = Name.}
+\item{gene_id_col}{a character string stating which attribute name to take from the final column of the GFF file to use for the window name in RNASeq data. Usually this is the name of the gene. Default = ID.}
 }
 \description{
 populate the result object with the RangedSummarizedExperiment from the bam files from RNA seq data. Called from make_counts() when is_rnaseq == TRUE.

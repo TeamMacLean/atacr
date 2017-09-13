@@ -10,7 +10,7 @@
 #' @param width an integer of the width of the bins the bait regions will be divided into
 #' @param filter_params a params object from atacr::make_params()  that define how reads will be extracted from the BAM files. Optionally, for greater control, either a csaw::readParam() (for ATACseq) or Rsamtools::ScanBamParam() object for RNASeq can be provided. See http://bioconductor.org/packages/release/bioc/manuals/csaw/man/csaw.pdf or https://www.rdocumentation.org/packages/Rsamtools/versions/1.24.0/topics/ScanBamParam for details
 #' @param is_rnaseq a boolean stating whether this is RNASeq data. Default = FALSE
-#' @param gene_id_col a character string stating which attribute name to take from the final column of the GFF file to use for the window name in RNASeq data. Usually this is the name of the gene. Default = Name.
+#' @param gene_id_col a character string stating which attribute name to take from the final column of the GFF file to use for the window name in RNASeq data. Usually this is the name of the gene. Default = ID.
 #' @param with_df attach a dataframe version of the data Default = FALSE
 #' @return a list of metadata and RangedSummarizedExperiment objects with read count in windows for whole genome, bait windows and non-bait windows for each sample
 make_counts <-
@@ -20,7 +20,7 @@ make_counts <-
     filter_params = make_params(), #csaw::readParam(minq = 50),
     with_df = FALSE,
     is_rnaseq = FALSE,
-    gene_id_col = "Name") {
+    gene_id_col = "ID") {
     result <- list()
     class(result) <- c("atacr", "list")
 
@@ -150,15 +150,22 @@ load_atac <- function(result, width, filter_params, window_file) {
 
 #' format a rsamtools::scanBam object from the atacr::make_params() object
 #' @param p an object returned from atacr::make_params()
+#' @param example_bam a filename pointing to a BAM file from which genome size can be taken
 #' @return an rsamtools::scanBamParam object
-make_scanBamParam <- function(p){
+make_scanBamParam <- function(p, example_bam){
+
+  ranges <- Rsamtools::idxstatsBam(example_bam)
+  ranges <- dplyr::mutate(ranges, start = 1)
+  ranges <- dplyr::rename(ranges, seqname = seqnames, end = seqlength)
+  ranges <- unlist(GenomicRanges::makeGRangesListFromDataFrame(ranges))
+
   return(Rsamtools::ScanBamParam(
     flag = Rsamtools::scanBamFlag(
-      mapqFilter = p["minq"],
       isDuplicate = p["dedup"],
      isProperPair = p["proper_pair"]
     ),
-    which = NA
+    mapqFilter = p["minq"],
+    which = ranges
   ))
 }
 
@@ -166,15 +173,15 @@ make_scanBamParam <- function(p){
 #' @param result list from make_counts()
 #' @param filter_params a params object, described in atacr::make_counts()
 #' @param window_file  a filename of a CSV file with the bait regions
-#' @param gene_id_col a character string stating which attribute name to take from the final column of the GFF file to use for the window name in RNASeq data. Usually this is the name of the gene. Default = Name.
+#' @param gene_id_col a character string stating which attribute name to take from the final column of the GFF file to use for the window name in RNASeq data. Usually this is the name of the gene. Default = ID.
 load_rnaseq <-
   function(result,
     filter_params,
     window_file,
-    gene_id_col = "Name") {
+    gene_id_col = "ID") {
 
     if ("atacr_params" %in% class(filter_params) ) {
-      filter_params <- make_scanBamParam(filter_params)
+      filter_params <- make_scanBamParam(filter_params, result$bam_files[1])
     }
 
     result$bait_regions <- get_bait_regions_from_gff(window_file)
@@ -185,17 +192,19 @@ load_rnaseq <-
       GenomicAlignments::summarizeOverlaps(
         features = result$bait_regions,
         reads = result$bam_files,
-        ignore.strand = T
+        ignore.strand = T,
+        param = filter_params
       )
     result$non_bait_windows <-
       GenomicAlignments::summarizeOverlaps(
         features = non_bait_regions,
         reads = result$bam_files,
-        ignore.strand = T
+        ignore.strand = T,
+        param = filter_params
       )
 
     if (c(gene_id_col) %in% names(result$bait_regions@elementMetadata@listData)) {
-      result$bait_windows@ranges@NAMES <-
+      result$bait_windows@rowRanges@ranges@NAMES <-
         as.character(result$bait_regions@elementMetadata@listData[[gene_id_col]])
     }
     else {
@@ -206,17 +215,17 @@ load_rnaseq <-
       )
     }
 
-    result$non_bait_windows@ranges@NAMES <- make_range_names(
+    result$non_bait_windows@rowRanges@ranges@NAMES <- make_range_names(
       non_bait_regions@seqnames@values,
       non_bait_regions@ranges@start,
       non_bait_regions@ranges@width
     )
 
-    result$whole_genome <-
-      rbind(result$bait_windows, result$non_bait_windows)
-    colnames(result$whole_genome) <-
-      colnames(result$bait_windows) <-
-      colnames(result$non_bait_windows) <- result$sample_names
+    #result$whole_genome <-
+      #rbind(result$bait_windows, result$non_bait_windows)
+    #colnames(result$whole_genome) <-
+    colnames(result$bait_windows) <-
+    colnames(result$non_bait_windows) <- result$sample_names
 
 
     return(result)

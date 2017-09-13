@@ -6,7 +6,7 @@
 \usage{
 make_counts(window_file, sample_treatment_file, width = 50,
   filter_params = make_params(), with_df = FALSE, is_rnaseq = FALSE,
-  gene_id_col = "Name")
+  gene_id_col = "ID")
 }
 \arguments{
 \item{window_file}{A filename of a CSV file with the bait regions}
@@ -21,7 +21,7 @@ make_counts(window_file, sample_treatment_file, width = 50,
 
 \item{is_rnaseq}{a boolean stating whether this is RNASeq data. Default = FALSE}
 
-\item{gene_id_col}{a character string stating which attribute name to take from the final column of the GFF file to use for the window name in RNASeq data. Usually this is the name of the gene. Default = Name.}
+\item{gene_id_col}{a character string stating which attribute name to take from the final column of the GFF file to use for the window name in RNASeq data. Usually this is the name of the gene. Default = ID.}
 }
 \value{
 a list of metadata and RangedSummarizedExperiment objects with read count in windows for whole genome, bait windows and non-bait windows for each sample

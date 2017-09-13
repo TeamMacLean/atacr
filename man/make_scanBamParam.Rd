@@ -4,10 +4,12 @@
 \alias{make_scanBamParam}
 \title{format a rsamtools::scanBam object from the atacr::make_params() object}
 \usage{
-make_scanBamParam(p)
+make_scanBamParam(p, example_bam)
 }
 \arguments{
 \item{p}{an object returned from atacr::make_params()}
+
+\item{example_bam}{a filename pointing to a BAM file from which genome size can be taken}
 }
 \value{
 an rsamtools::scanBamParam object

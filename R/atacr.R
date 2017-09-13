@@ -13,6 +13,7 @@ if (getRversion() >= "2.15.1")
 #' @importFrom stats cor kmeans median p.adjust quantile rnbinom rnorm rpois runif sd start t.test window
 #' @importFrom utils capture.output read.csv str
 #' @importFrom methods as
+#' @importFrom SummarizedExperiment rbind
 no_func <-
   function(x) {
     return(FALSE)
