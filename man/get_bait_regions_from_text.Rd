@@ -2,16 +2,16 @@
 % Please edit documentation in R/loading.R
 \name{get_bait_regions_from_text}
 \alias{get_bait_regions_from_text}
-\title{reads a text file containing the bait regions}
+\title{reads a csv file containing the bait regions}
 \usage{
 get_bait_regions_from_text(file_name)
 }
 \arguments{
-\item{file_name}{path to the file containing the bait regions}
+\item{file_name}{path to a csv file containing the bait regions. File must have a header with columns `bait_name`, `seq_name`, `start`, `end`.}
 }
 \value{
 GenomicRanges object of bait regions
 }
 \description{
-reads a text file containing the bait regions
+reads a csv file containing the bait regions
 }

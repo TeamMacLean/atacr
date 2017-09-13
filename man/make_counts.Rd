@@ -5,7 +5,8 @@
 \title{load BAM files and calculate window coverage}
 \usage{
 make_counts(window_file, sample_treatment_file, width = 50,
-  filter_params = csaw::readParam(minq = 50), with_df = FALSE)
+  filter_params = make_params(), with_df = FALSE, is_rnaseq = FALSE,
+  gene_id_col = "Name")
 }
 \arguments{
 \item{window_file}{A filename of a CSV file with the bait regions}
@@ -14,9 +15,13 @@ make_counts(window_file, sample_treatment_file, width = 50,
 
 \item{width}{an integer of the width of the bins the bait regions will be divided into}
 
-\item{filter_params}{a csaw::readParam() object that defines how reads will be extracted from the BAM files. See http://bioconductor.org/packages/release/bioc/manuals/csaw/man/csaw.pdf for details}
+\item{filter_params}{a params object from atacr::make_params()  that define how reads will be extracted from the BAM files. Optionally, for greater control, either a csaw::readParam() (for ATACseq) or Rsamtools::ScanBamParam() object for RNASeq can be provided. See http://bioconductor.org/packages/release/bioc/manuals/csaw/man/csaw.pdf or https://www.rdocumentation.org/packages/Rsamtools/versions/1.24.0/topics/ScanBamParam for details}
 
 \item{with_df}{attach a dataframe version of the data Default = FALSE}
+
+\item{is_rnaseq}{a boolean stating whether this is RNASeq data. Default = FALSE}
+
+\item{gene_id_col}{a character string stating which attribute name to take from the final column of the GFF file to use for the window name in RNASeq data. Usually this is the name of the gene. Default = Name.}
 }
 \value{
 a list of metadata and RangedSummarizedExperiment objects with read count in windows for whole genome, bait windows and non-bait windows for each sample

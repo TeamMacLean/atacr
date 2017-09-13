@@ -61,21 +61,11 @@ make_params <- function(proper_pair = TRUE, minq = 20, dedup = TRUE){
 
 }
 
-#' reads a text file containing the bait regions
-#' @param file_name path to the file containing the bait regions
+#' reads a csv file containing the bait regions
+#' @param file_name path to a csv file containing the bait regions. File must have a header with columns `bait_name`, `seq_name`, `start`, `end`.
 #' @return GenomicRanges object of bait regions
 get_bait_regions_from_text <- function(file_name) {
-  df <- read.csv(file_name, sep = "\t", header = FALSE)
-  df <-
-    plyr::rename(df,
-      c(
-        "V1" = "bait_name",
-        "V2" = "seq_name",
-        "V3" = "col1",
-        "V4" = "col2"
-      ))
-  df$start_pos <- apply(df[, 3:4], 1, min)
-  df$end_pos <-  apply(df[, 3:4], 1, max)
+  df <- read.csv(file_name, sep = ",", header = TRUE)
 
   bait_regions <- GenomicRanges::GRanges(
     seqnames = S4Vectors::Rle(df$seq_name),
@@ -163,7 +153,7 @@ load_atac <- function(result, width, filter_params, window_file) {
 #' @return an rsamtools::scanBamParam object
 make_scanBamParam <- function(p){
   return(Rsamtools::ScanBamParam(
-    flag = Rsamtools::ScanBamFlag(
+    flag = Rsamtools::scanBamFlag(
       mapqFilter = p["minq"],
       isDuplicate = p["dedup"],
      isProperPair = p["proper_pair"]
@@ -176,6 +166,7 @@ make_scanBamParam <- function(p){
 #' @param result list from make_counts()
 #' @param filter_params a params object, described in atacr::make_counts()
 #' @param window_file  a filename of a CSV file with the bait regions
+#' @param gene_id_col a character string stating which attribute name to take from the final column of the GFF file to use for the window name in RNASeq data. Usually this is the name of the gene. Default = Name.
 load_rnaseq <-
   function(result,
     filter_params,
