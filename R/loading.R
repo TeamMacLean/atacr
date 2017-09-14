@@ -48,14 +48,14 @@ make_counts <-
 
 #' set read filters for counting from the BAM file.
 #' @export
-#' @param proper_pair Should reads only be included if they are aligned as a proper pair. Default = TRUE
+#' @param paired_map Should reads only be included if they are aligned in pairs. Default = TRUE
 #' @param minq The minimum mapping quality to retain a read. Default = 20
 #' @param dedup Should removal of PCR duplicates be performed. Default = TRUE
 #' @return a named vector of class "atacr_params"
-make_params <- function(proper_pair = TRUE, minq = 20, dedup = TRUE){
+make_params <- function(paired_map = TRUE, minq = 20, dedup = TRUE){
 
-  params <- c(proper_pair, minq, dedup)
-  names(params) <- c("proper_pair", "minq", "dedup")
+  params <- c(paired_map, minq, dedup)
+  names(params) <- c("paired_map", "minq", "dedup")
   class(params) <- c("atacr_params")
   return(params)
 
@@ -98,7 +98,7 @@ make_csaw_params <- function(p){
     csaw::readParam(
       minq = p["minq"],
       dedup = p["dedup"],
-      pe = ifelse(p["proper_pair"], "both", "none")
+      pe = ifelse(p["paired_map"], "both", "none")
     )
   )
 }
@@ -161,8 +161,8 @@ make_scanBamParam <- function(p, example_bam){
 
   return(Rsamtools::ScanBamParam(
     flag = Rsamtools::scanBamFlag(
-      isDuplicate = p["dedup"],
-     isProperPair = p["proper_pair"]
+      isDuplicate = !p["dedup"],
+     hasUnmappedMate =  !p["paired_map"]
     ),
     mapqFilter = p["minq"],
     which = ranges
@@ -221,12 +221,12 @@ load_rnaseq <-
       non_bait_regions@ranges@width
     )
 
-    #result$whole_genome <-
-      #rbind(result$bait_windows, result$non_bait_windows)
-    #colnames(result$whole_genome) <-
+    result$bait_windows@rowRanges@elementMetadata@listData <- list()
+    result$whole_genome <-
+    rbind(result$bait_windows, result$non_bait_windows)
+    colnames(result$whole_genome) <-
     colnames(result$bait_windows) <-
     colnames(result$non_bait_windows) <- result$sample_names
-
 
     return(result)
   }
