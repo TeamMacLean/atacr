@@ -57,7 +57,7 @@ plot_count_by_chromosome(sim_counts)
 Correlations between sample counts
 
 ```{r}
-sample_correlation_heatmap(sim_counts)
+sample_correlation_plot(sim_counts)
 ```
 
 

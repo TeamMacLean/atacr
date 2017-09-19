@@ -154,6 +154,8 @@ load_atac <- function(result, width, filter_params, window_file) {
 #' @return an rsamtools::scanBamParam object
 make_scanBamParam <- function(p, example_bam){
 
+  seqnames <- seqlength<- NULL
+
   ranges <- Rsamtools::idxstatsBam(example_bam)
   ranges <- dplyr::mutate(ranges, start = 1)
   ranges <- dplyr::rename(ranges, seqname = seqnames, end = seqlength)

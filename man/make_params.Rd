@@ -4,10 +4,10 @@
 \alias{make_params}
 \title{set read filters for counting from the BAM file.}
 \usage{
-make_params(proper_pair = TRUE, minq = 20, dedup = TRUE)
+make_params(paired_map = TRUE, minq = 20, dedup = TRUE)
 }
 \arguments{
-\item{proper_pair}{Should reads only be included if they are aligned as a proper pair. Default = TRUE}
+\item{paired_map}{Should reads only be included if they are aligned in pairs. Default = TRUE}
 
 \item{minq}{The minimum mapping quality to retain a read. Default = 20}
 

@@ -10,7 +10,7 @@ if (getRversion() >= "2.15.1")
 
 #' @importFrom magrittr %>%
 #' @importFrom graphics hist
-#' @importFrom stats cor kmeans median p.adjust quantile rnbinom rnorm rpois runif sd start t.test window
+#' @importFrom stats cor kmeans median p.adjust quantile rnbinom rnorm rpois runif sd start t.test window cor.test
 #' @importFrom utils capture.output read.csv str
 #' @importFrom methods as
 #' @importFrom SummarizedExperiment rbind
