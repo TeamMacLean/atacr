@@ -1,15 +1,15 @@
 Package: atacr
 Type: Package
-Title: Analysing ATAC-Seq Data
-Version: 0.3.3
+Title: Analysing Capture Seq Count Data
+Version: 0.4.0
 Authors@R: c(
   person("Dan","MacLean", email="dan.maclean@tsl.ac.uk", role=c("aut", "cre")),
   person("Ram-Krishna", "Shrestha", email="ram-krishna.shrestha@tsl.ac.uk", role="aut"))
-Description: This package helps with the analysis of count data from capture-seq experiments.
+Description: This package helps with the analysis of count data from RNA and ATAC capture-seq experiments.
     Using BioConductor RangedSummarizedExperiment objects, atacr implements a set of helper
     functions and quality control plots specific to the analysis of particularly windows.
     Especially, atacr is useful for performing control window based between sample normalizations and for
-    easily running tests for differentially accessible windows in common reference designs.
+    easily running non-standard tests for differentially accessible windows in common reference designs.
 Depends: R (>= 3.0.0)
 License: GPL-3
 LazyData: TRUE

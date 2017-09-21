@@ -143,85 +143,14 @@ calc_quantiles <-
     }
   }
 
-#' run fitdistrplus to estimate chisquared goodness of fit and kolmogorov
-#' smirnov tests for fit to distributions
-#' @export
-#' @param dist a distribution name recognised by fitdistrplus
-#' @param data a list of SummarizedExperiment objects from atacr::make_counts()
-#' @param keep a character vector of fitdistrplus statistics to report
-#' @param which the subset of data windows to report on. Default = "bait_windows"
-#' @param min_count the minimum count in a window for use in the fit
-#' @return data.frame with columns for keep statistics, dsitribution tested and
-#'   samples
-get_fit <-
-  function(dist,
-    data = NULL,
-    which = "bait_windows",
-    keep = c("chisqpvalue", "cvm", "ad", "ks"),
-    min_count = 0) {
-    d <- as.matrix(data, which = which)
-    d[d < min_count] <- NA
-    r <-
-      apply(d, 2, function(x, dist)
-        fitdistrplus::fitdist(x[!is.na(x)], dist), dist)
-    gof <- lapply(r, fitdistrplus::gofstat)
 
-    r <- matrix(0, nrow = length(names(gof)), ncol = length(keep))
-    colnames(r) <- keep
-    l <- lapply(gof, function(x)
-      x[keep])
-    rownames(r) <- names(l)
-    num_rows <- length(names(l))
-    for (row in 1:num_rows) {
-      for (col in 1:length(names(l[[row]]))) {
-        val <- unname(l[[row]][[col]])
-        if (length(val) == 0) {
-          val <- NA
-        }
-        r[row, col] <- val
-      }
-    }
-    r <- as.data.frame(r)
-    r$sample <- rownames(r)
-    r$distribution <- rep(dist, length(r$sample))
-    rownames(r) <- NULL
-    return(r)
-  }
 
 se_contains_only_integers <- function(data, which) {
   a <- SummarizedExperiment::assay(data[[which]])
   return(all(a == as.integer(a)))
 }
 
-#' run distribution fitting for all samples in a data set using multiple named
-#' distributions
-#' @param data a list of SummarizedExperiment objects from atacr::make_counts()
-#' @param dists a character vector of distribution names recognised by
-#'   fitdistrplus
-#' @param which the subset of data windows to report on. Default = "bait_windows"
-#' @param min_count the minimum count in a window for use in the fit
-#' @param keep a character vector of fitdistrplus statistics to report
-#' @return data.frame with columns for keep statistics,  and samples
-get_fits <- function(data,
-  dists = c("norm", "pois", "nbinom"),
-  which = "bait_windows",
-  keep = c("chisqpvalue", "cvm", "ad", "ks"),
-  min_count = 0) {
-  if (all(c("pois", "nbinom") %in% dists) &&
-      !se_contains_only_integers(data, which)) {
-    stop("can't do fits for discrete distribution with non-integer values")
-  }
 
-  result <- lapply(
-    dists,
-    get_fit,
-    data,
-    which = which,
-    keep = keep,
-    min_count = min_count
-  )
-  return(do.call("rbind", result))
-}
 
 #' given a vector of values return a set of random numbers from a given
 #' distribution

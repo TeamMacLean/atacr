@@ -69,11 +69,41 @@ get_sd <- function(comparisons){
 }
 
 get_fc <- function(result){
-  log2_fc <- apply(result, 1, function(x){ log2(x[4]) - log2(x[5])})
-  return(cbind(result,log2_fc))
+  mean_count_a <- mean_count_b <- NULL
+  result <- dplyr::mutate(result, log2_fc = log2(mean_count_a) - log2(mean_count_b))
+  return(result)
 }
 
+#' selects appropriate columns and names from a
+select_data <- function(data, treatment_a, treatment_b, which = NULL){
 
+  comparison_list <- select_comparisons(data, treatment_a, treatment_b, which = which)
+  comparison_matrix <- cbind(comparison_list$treatment_a, comparison_list$treatment_b )
+
+  return(
+    list(
+      counts = comparison_matrix,
+      comparisons = comparison_list,
+      treatment_a_names = data$sample_names[which(data$treatments == treatment_a)],
+      treatment_b_names = data$sample_names[which(data$treatments == treatment_b)]
+      )
+    )
+
+}
+
+check_data <- function(d, treatment_a, treatment_b){
+
+  if( length(d$treatment_a_names) < 3 | length(d$treatment_b_names) < 3  ){
+    message <- paste("Need at least 3 replicates to perform estimate bootstrap t value. Have", length(d$treatment_a_names), "for", treatment_a, "and", length(d$treatment_b_names), "for", treatment_b)
+    stop(message)
+  }
+
+  if(length(d$treatment_a_names) != length(d$treatment_b_names) ){
+    message <- paste("Must have equal number of replicates in each treatment. Have", length(d$treatment_a_names), "for", treatment_a, "and", length(d$treatment_b_names), "for", treatment_b)
+    stop(message)
+  }
+
+}
 
 #' Estimate FDR and significantly different windows
 #' @export
@@ -85,37 +115,33 @@ get_fc <- function(result){
 #' @param fdr_level the level at which to mark FDR as significant
 estimate_fdr <- function(data, treatment_a, treatment_b, which = "bait_windows", iterations=10,fdr_level=0.05){
 
-  sample_matrix <- SummarizedExperiment::assay(data[[which]])
-  comparison_list <- select_comparisons(data, treatment_a, treatment_b, which = which)
-  comparison_matrix <- cbind(comparison_list$treatment_a, comparison_list$treatment_b )
-  treatment_a_names <- data$sample_names[which(data$treatments == treatment_a)]
-  treatment_b_names <- data$sample_names[which(data$treatments == treatment_b)]
 
-  if( length(treatment_a_names) < 3 | length(treatment_b_names) < 3  ){
-    message <- paste("Need at least 3 replicates to perform estimate bootstrap t value. Have", length(treatment_a_names), "for", treatment_a, "and", length(treatment_b_names), "for", treatment_b)
-    stop(message)
-  }
+  d <- select_data(data, treatment_a, treatment_b, which)
 
-  if(length(treatment_a_names) != length(treatment_b_names) ){
-    message <- paste("Must have equal number of replicates in each treatment. Have", length(treatment_a_names), "for", treatment_a, "and", length(treatment_b_names), "for", treatment_b)
-    stop(message)
-  }
+  check_data(d, treatment_a, treatment_b)
 
   #calc bootstrap p-values
 
-  result <- apply(comparison_matrix, 1, bootstrap_t, iterations=iterations)
+  result <- apply(d$counts, 1, bootstrap_t, iterations = iterations)
   result <- t(result)
   colnames(result) <- c("t", "p_value")
-  rownames(result) <- rownames(sample_matrix)
+
+  result <- data.frame(
+    window = rownames(result),
+    t = result[, "t"],
+    p_value = result[,"p_value"]
+  )
+
+  #rownames(result) <- rownames(d$counts)
   #calc FDR
-  fdr <- p.adjust(result[,"p_value"], method="fdr")
-  names(fdr) <- ("fdr")
-  result <- cbind(result, fdr)
+  result$fdr <- p.adjust(result[,"p_value"], method = "fdr")
+  #names(fdr) <- ("fdr")
+  #result <- cbind(result, fdr)
 
   #add means
-  result <- cbind(result, get_means(comparison_list))
+  result <- cbind(result, get_means(d$comparisons))
   #add sd
-  result <- cbind(result, get_sd(comparison_list))
+  result <- cbind(result, get_sd(d$comparisons))
   #add log2 fc
   result <-  get_fc(result)
 
@@ -125,27 +151,27 @@ estimate_fdr <- function(data, treatment_a, treatment_b, which = "bait_windows",
 
   result <- as.data.frame(result)
   result$is_sig <- is_sig
-  result$window <- rownames(sample_matrix)
+  result$window <- rownames(d$counts)
   #sort by fdr
-  result <- dplyr::arrange(result, fdr)
-  return(result[,c(10,1:9)])
+  #result <- dplyr::arrange(result, fdr)
+  return(result)#[,c(10,1:9)])
 
 }
 
-#' Estimate FDR and significantly different windows for many experimets
+#' Estimate FDR and significantly different windows for many experiments
 #' @export
 #' @param data an atacr object
 #' @param common_control the treatment to consider the control for all other treatments
 #' @param which the subset of windows to consider
 #' @param iterations the number of bootstrap iterations to perform
 #' @param fdr_level the level at which to mark FDR as significant
-estimate_fdr_multiclass <- function(data, common_control, which = "bait_windows", iterations=10,fdr_level=0.05){
+estimate_fdr_multiclass <- function(data, common_control, which = "bait_windows", iterations = 10,fdr_level = 0.05) {
   treatments <- data$treatments[data$treatments != common_control]
   control <- rep(common_control, length(treatments))
   comparisons <- cbind(treatments, control)
 
   r <- list()
-  for (i in 1:nrow(comparisons)){
+  for (i in 1:nrow(comparisons)) {
     tr <- comparisons[i,][1]
     ct <- comparisons[i,][2]
 
@@ -163,5 +189,69 @@ estimate_fdr_multiclass <- function(data, common_control, which = "bait_windows"
 
 }
 
+bayes_t <- function(counts, treatment_a_names, treatment_b_names){
+
+  a <- counts[treatment_a_names]
+  b <- counts[treatment_b_names]
+  bf <- BayesFactor::ttestBF(a,b)
+  return(bf@bayesFactor$bf)
+}
 
 
+#' Estimate Bayes Factor and significantly different windows
+#' @export
+#' @param data an atacr object
+#' @param treatment_a the first treatment to consider
+#' @param treatment_b the second treatment to consider
+#' @param which the subset of windows to consider
+#' @param factor the BayesFactor at which to mark window as significant
+#' @return a dataframe
+estimate_bayes_factor <- function(atacr, treatment_a, treatment_b, which = "bait_windows", factor = 4){
+
+  d <- select_data(atacr, treatment_a, treatment_b, which)
+  check_data(d, treatment_a, treatment_b)
+  result <- apply(as.data.frame(d$counts), 1, bayes_t, treatment_a_names = d$treatment_a_names, treatment_b_names = d$treatment_b_names)
+
+  result <- data.frame(
+    window = names(result),
+    bayes_factor = result
+    )
+  result$is_sig <- (result$bayes_factor >= factor)
+  result <- cbind(result, get_means(d$comparisons))
+  #add sd
+  result <- cbind(result, get_sd(d$comparisons))
+  #add log2 fc
+  result <-  get_fc(result)
+
+
+  return(result)
+}
+
+#' Estimate BayesFactor and mark significantly different windows for many experiments
+#' @export
+#' @param data an atacr object
+#' @param common_control the treatment to consider the control for all other treatments
+#' @param which the subset of windows to consider
+#' @param factor the BayesFactor to consider significant
+estimate_bayes_factor_multiclass <- function(data, common_control, which = "bait_windows", factor = 4) {
+  treatments <- data$treatments[data$treatments != common_control]
+  control <- rep(common_control, length(treatments))
+  comparisons <- cbind(treatments, control)
+  print(comparisons)
+  r <- list()
+  for (i in 1:nrow(comparisons)) {
+    tr <- comparisons[i,][1]
+    ct <- comparisons[i,][2]
+
+    df <- estimate_bayes_factor(data,
+      tr,
+      ct,
+      which = which,
+      factor = factor)
+    df$a <- rep(tr, nrow(df))
+    df$b <- rep(ct, nrow(df))
+    r[[i]] <- df
+  }
+  return(do.call(rbind, r))
+
+}

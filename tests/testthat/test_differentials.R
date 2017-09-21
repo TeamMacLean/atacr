@@ -15,5 +15,5 @@ test_that("select_comparisons() extracts proper columns", {
 })
 
 test_that("estimate_fdr() returns proper dataframe", {
-  expect_vectors_equal(names(estimate_fdr(sim_counts, "control", "treatment")), c("window", "t", "p_value", "fdr", "mean_count_a", "mean_count_b", "sd_a", "sd_b", "log2_fc", "is_sig"))
+  expect_vectors_equal(names(estimate_fdr(sim_counts, "control", "treatment")), c("window", "t", "p_value", "fdr", "mean_count_a", "mean_count_b", "sd_a", "sd_b", "log2fc", "is_sig"))
 })

@@ -55,16 +55,6 @@ test_that("calc_quantiles() returns list() when threshold == NULL", {
   expect_has_all_and_only_these_members(l, c("bait_windows", "non_bait_windows"))
 })
 
-test_that("get_fit() gets fit", {
-  f <- get_fit("norm", small_counts)
-  expect_equal(f$chisqpvalue[1], 0.3154778 )
-})
-
-test_that("get_fits() gets fits", {
-  f <- get_fits(small_counts)
-  expect_equal(unique(f$distribution), c("norm", "pois", "nbinom"))
-})
-
 test_that("get_expected_values() returns right random numbers",{
   set.seed(1234)
   expect_vectors_equal(get_expected_values(c(1,2,3,4,1,2,3,4),dist="norm"),c(1.057280,2.831591,3.796155,-0.303645,3.012902,3.104852,1.813054,1.846650))

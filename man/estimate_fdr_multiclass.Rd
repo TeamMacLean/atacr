@@ -2,7 +2,7 @@
 % Please edit documentation in R/differentials.R
 \name{estimate_fdr_multiclass}
 \alias{estimate_fdr_multiclass}
-\title{Estimate FDR and significantly different windows for many experimets}
+\title{Estimate FDR and significantly different windows for many experiments}
 \usage{
 estimate_fdr_multiclass(data, common_control, which = "bait_windows",
   iterations = 10, fdr_level = 0.05)
@@ -19,5 +19,5 @@ estimate_fdr_multiclass(data, common_control, which = "bait_windows",
 \item{fdr_level}{the level at which to mark FDR as significant}
 }
 \description{
-Estimate FDR and significantly different windows for many experimets
+Estimate FDR and significantly different windows for many experiments
 }
