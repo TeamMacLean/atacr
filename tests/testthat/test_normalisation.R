@@ -1,5 +1,6 @@
-library(atacr)
 Sys.setenv("R_TESTS" = "")
+library(atacr)
+
 
 context("normalisation functions")
 
