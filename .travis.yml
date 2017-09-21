@@ -9,3 +9,6 @@ r_packages:
 
 after_success:
   - Rscript -e 'library(covr); codecov()'
+
+before_script:
+  - echo "BiocParallel::register(BiocParallel::SerialParam())" > ~/.Rprofile
