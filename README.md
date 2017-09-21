@@ -1,14 +1,14 @@
-[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active) [![Licence](https://img.shields.io/badge/licence-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html) [![Build Status](https://travis-ci.org/TeamMacLean/atacr.svg?branch=master)](https://travis-ci.org/TeamMacLean/atacr) [![codecov](https://codecov.io/gh/TeamMacLean/atacr/branch/master/graph/badge.svg)](https://codecov.io/gh/TeamMacLean/atacr)
+[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active) [![License](https://img.shields.io/badge/License-BSD%202--Clause-orange.svg)](https://opensource.org/licenses/BSD-2-Clause) [![Build Status](https://travis-ci.org/TeamMacLean/atacr.svg?branch=master)](https://travis-ci.org/TeamMacLean/atacr) [![codecov](https://codecov.io/gh/TeamMacLean/atacr/branch/master/graph/badge.svg)](https://codecov.io/gh/TeamMacLean/atacr)
 ----
 [![minimal R version](https://img.shields.io/badge/R%3E%3D-3.0.0-6666ff.svg)](https://cran.r-project.org/) [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/atacr)](https://cran.r-project.org/package=atacr)
-[![packageversion](https://img.shields.io/badge/Package%20version-0.3.1-orange.svg?style=flat-square)](commits/master)
+[![packageversion](https://img.shields.io/badge/Package%20version-0.4.0-orange.svg?style=flat-square)](commits/master)
 ----
-[![Last-changedate](https://img.shields.io/badge/last%20change-"2017--07--19"-yellowgreen.svg)](/commits/master)
+[![Last-changedate](https://img.shields.io/badge/last%20change-"2017--09--21"-yellowgreen.svg)](/commits/master)
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 atacr
 =====
 
-atacr helps with the analysis of count data from ATAC-seq experiments. Using BioConductor RangedSummarizedExperiment objects, atacr implements a set of helper functions and quality control plots specific to the analysis of particularly windows. Especially, atacr is useful for performing control window based normalisations and for easily running tests for differentially accessible windows in common reference designs with multiclass data.
+helps with the analysis of count data from RNA and ATAC capture-seq experiments. Using BioConductor RangedSummarizedExperiment objects, atacr implements a set of helper functions and quality control plots specific to the analysis of particularly windows. Especially, atacr is useful for performing control window based between sample normalizations and for easily running non-standard tests for differentially accessible windows in common reference designs.
 
 Installation
 ------------
@@ -79,7 +79,8 @@ summary(sim_counts)
 
 ``` r
 plot(sim_counts)
-#> Picking joint bandwidth of 0.966
+#> Picking joint bandwidth of 0.0243
+#> Picking joint bandwidth of 0.0582
 ```
 
 ![](README-unnamed-chunk-2-1.png)
