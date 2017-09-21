@@ -6,6 +6,18 @@
 \usage{
 select_data(data, treatment_a, treatment_b, which = NULL)
 }
+\arguments{
+\item{data}{an atacr object}
+
+\item{treatment_a}{string naming the first treatment (numerator)}
+
+\item{treatment_b}{string naming the second treatment (denominator)}
+
+\item{which}{subset to work on Default = NULL}
+}
+\value{
+list of data to be calculated with
+}
 \description{
 selects appropriate columns and names from a
 }

@@ -8,6 +8,8 @@ estimate_bayes_factor(atacr, treatment_a, treatment_b, which = "bait_windows",
   factor = 4)
 }
 \arguments{
+\item{atacr}{an atacr object}
+
 \item{treatment_a}{the first treatment to consider}
 
 \item{treatment_b}{the second treatment to consider}
@@ -15,8 +17,6 @@ estimate_bayes_factor(atacr, treatment_a, treatment_b, which = "bait_windows",
 \item{which}{the subset of windows to consider}
 
 \item{factor}{the BayesFactor at which to mark window as significant}
-
-\item{data}{an atacr object}
 }
 \value{
 a dataframe

@@ -75,6 +75,11 @@ get_fc <- function(result){
 }
 
 #' selects appropriate columns and names from a
+#' @param data an atacr object
+#' @param treatment_a string naming the first treatment (numerator)
+#' @param treatment_b string naming the second treatment (denominator)
+#' @param which subset to work on Default = NULL
+#' @return list of data to be calculated with
 select_data <- function(data, treatment_a, treatment_b, which = NULL){
 
   comparison_list <- select_comparisons(data, treatment_a, treatment_b, which = which)
@@ -200,7 +205,7 @@ bayes_t <- function(counts, treatment_a_names, treatment_b_names){
 
 #' Estimate Bayes Factor and significantly different windows
 #' @export
-#' @param data an atacr object
+#' @param atacr an atacr object
 #' @param treatment_a the first treatment to consider
 #' @param treatment_b the second treatment to consider
 #' @param which the subset of windows to consider
