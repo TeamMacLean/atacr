@@ -213,7 +213,7 @@ load_rnaseq <-
         as.character(result$bait_regions@elementMetadata@listData[[gene_id_col]])
     }
     else {
-      result$bait_windows@ranges@NAMES <- make_range_names(
+      result$bait_windows@rowRanges@ranges@NAMES <- make_range_names(
         result$bait_regions@seqnames@values,
         result$bait_regions@ranges@start,
         result$bait_regions@ranges@width
