@@ -186,6 +186,9 @@ load_rnaseq <-
       filter_params <- make_scanBamParam(filter_params, result$bam_files[1])
     }
 
+    bams <- Rsamtools::BamFileList(result$bam_files)
+    names(bams) <- result$sample_names
+
     result$bait_regions <- get_bait_regions_from_gff(window_file)
     non_bait_regions <-
       GenomicRanges::gaps(result$bait_regions) #the intergene regions
@@ -193,14 +196,14 @@ load_rnaseq <-
     result$bait_windows <-
       GenomicAlignments::summarizeOverlaps(
         features = result$bait_regions,
-        reads = result$bam_files,
+        reads = bams,
         ignore.strand = T,
         param = filter_params
       )
     result$non_bait_windows <-
       GenomicAlignments::summarizeOverlaps(
         features = non_bait_regions,
-        reads = result$bam_files,
+        reads = bams,
         ignore.strand = T,
         param = filter_params
       )
@@ -243,4 +246,25 @@ make_range_names <- function(chr, start, width) {
 read_experiment_info <- function(filename) {
   return(read.csv(filename, header = TRUE, sep = ","))
   ## read in file with columns 'treatment, sample_name, bam_file_path'
+}
+
+#' pulls lines out of a gff file based on identifierss provided
+#' @param ids character vector of ids/names of feature to extract
+#' @param gff path to gff file
+#' @param type feature type of features to extract.
+#' @param col column name of GFF file containing id to use (ID)
+#' @param out_file path of file name to write. If NULL, no file is written
+#' @return GenomicRanges or NULL with GFF outfile.
+extract_features_from_gff <- function(ids, gff, type = c("gene"), col="ID", out_file = NULL){
+  gff <- rtracklayer::import.gff(gff, "GFF")
+  gene_features <- as(gff, "GRanges")
+  gene_features <- gene_features[ gene_features$type %in% type ]
+  gene_features <- gene_features[ gene_features@elementMetadata@listData[[col]] %in% ids ]
+  if ( is.null(out_file) ) {
+    return(gene_features)
+  }
+  else{
+    rtracklayer::export.gff(gene_features, out_file)
+  }
+
 }
