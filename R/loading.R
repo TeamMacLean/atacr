@@ -52,7 +52,7 @@ make_counts <-
 #' @param minq The minimum mapping quality to retain a read. Default = 20
 #' @param dedup Should removal of PCR duplicates be performed. Default = TRUE
 #' @return a named vector of class "atacr_params"
-make_params <- function(paired_map = TRUE, minq = 20, dedup = TRUE){
+make_params <- function(paired_map = TRUE, minq = 30, dedup = TRUE){
 
   params <- c(paired_map, minq, dedup)
   names(params) <- c("paired_map", "minq", "dedup")
@@ -154,7 +154,7 @@ load_atac <- function(result, width, filter_params, window_file) {
 #' @return an rsamtools::scanBamParam object
 make_scanBamParam <- function(p, example_bam){
 
-  seqnames <- seqlength<- NULL
+  seqnames <- seqlength <- NULL
 
   ranges <- Rsamtools::idxstatsBam(example_bam)
   ranges <- dplyr::mutate(ranges, start = 1)
@@ -164,7 +164,7 @@ make_scanBamParam <- function(p, example_bam){
   return(Rsamtools::ScanBamParam(
     flag = Rsamtools::scanBamFlag(
       isDuplicate = !p["dedup"],
-     hasUnmappedMate =  !p["paired_map"]
+      isProperPair = p["paired_map"]
     ),
     mapqFilter = p["minq"],
     which = ranges

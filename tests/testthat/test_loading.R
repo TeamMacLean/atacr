@@ -98,7 +98,7 @@ test_that("make_csaw_params() returns properly populated object", {
   expect_that(unname(p@pe), equals(c("both")))
   expect_that(p@max.frag, equals(500))
   expect_that(p@dedup, equals(TRUE))
-  expect_that(p@minq, equals(20))
+  expect_that(p@minq, equals(30))
   expect_that(p@forward, equals(NA))
 })
 
@@ -106,8 +106,8 @@ q <- make_scanBamParam(make_params(), filtered_rnaseq$bam_files[1])
 test_that("make_scanBamParam() returns properly populated object", {
 
   expect_is(q, "ScanBamParam")
-  expect_that(unname(q@flag), equals(c(2047,1015)))
+  expect_that(unname(q@flag), equals(c(2045,1023)))
   expect_that(q@simpleCigar, equals(FALSE))
   expect_that(q@reverseComplement, equals(FALSE))
-  expect_that(q@mapqFilter, equals(20))
+  expect_that(q@mapqFilter, equals(30))
 })
