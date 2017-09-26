@@ -170,7 +170,7 @@ scale_normalise <- function( sample_matrix, scaling_factors){ #nocov start
 #' @param which the subdivision of the genome to calculate correlations either 'whole_genome', 'bait_windows' or 'non_bait_windows'
 #' @return a SummarizedExperiment with scale normalised window values
 scale_factor_normalise <- function(data, which = "bait_windows", scaling_factors = NULL){
-  se = data[[which]]
+  se <-  data[[which]]
   normalised_sample_matrix <- scale_normalise(SummarizedExperiment::assay( se ), scaling_factors)
   se_copy <- se
   SummarizedExperiment::assay(se_copy) <- normalised_sample_matrix

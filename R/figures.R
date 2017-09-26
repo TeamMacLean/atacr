@@ -191,7 +191,6 @@ coverage_summary <-
       p <- ggplot2::ggplot(data) +
           ggplot2::aes(x = count, y = sample) +
         ggjoy::geom_joy(ggplot2::aes(fill = window_type),alpha = 0.7) +
-        ggplot2::facet_grid(. ~ window_type ) +
         ggthemes::scale_color_ptol()  +
         ggthemes::scale_fill_ptol() +
         ggplot2::theme_minimal() +
@@ -209,7 +208,7 @@ coverage_summary <-
 
     if (is.null(which) & is.null(samp)) {
       count <- window_type <- NULL
-      p <- cov_joy_plot(all)
+      p <- cov_joy_plot(all) + ggplot2::facet_grid(. ~ window_type ) +
       return(p)
     }
 
