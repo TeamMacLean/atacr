@@ -4,7 +4,7 @@
 \alias{make_params}
 \title{set read filters for counting from the BAM file.}
 \usage{
-make_params(paired_map = TRUE, minq = 20, dedup = TRUE)
+make_params(paired_map = TRUE, minq = 30, dedup = TRUE)
 }
 \arguments{
 \item{paired_map}{Should reads only be included if they are aligned in pairs. Default = TRUE}

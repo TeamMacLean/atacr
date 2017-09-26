@@ -5,7 +5,7 @@
 \title{pulls lines out of a gff file based on identifierss provided}
 \usage{
 extract_features_from_gff(ids, gff, type = c("gene"), col = "ID",
-  out_file = NULL)
+  out_file = NULL, version = "3")
 }
 \arguments{
 \item{ids}{character vector of ids/names of feature to extract}
@@ -17,6 +17,8 @@ extract_features_from_gff(ids, gff, type = c("gene"), col = "ID",
 \item{col}{column name of GFF file containing id to use (ID)}
 
 \item{out_file}{path of file name to write. If NULL, no file is written}
+
+\item{version}{which gff version to export (Default is "3")}
 }
 \value{
 GenomicRanges or NULL with GFF outfile.

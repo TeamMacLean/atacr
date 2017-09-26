@@ -249,6 +249,7 @@ read_experiment_info <- function(filename) {
 }
 
 #' pulls lines out of a gff file based on identifierss provided
+#' @export
 #' @param ids character vector of ids/names of feature to extract
 #' @param gff path to gff file
 #' @param type feature type of features to extract.
