@@ -1,7 +1,7 @@
 Package: atacr
 Type: Package
 Title: Analysing Capture Seq Count Data
-Version: 0.4.12
+Version: 0.4.13
 Authors@R: c(
   person("Dan","MacLean", email="dan.maclean@tsl.ac.uk", role=c("aut", "cre")),
   person("Ram-Krishna", "Shrestha", email="ram-krishna.shrestha@tsl.ac.uk", role="aut"))

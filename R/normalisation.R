@@ -233,12 +233,13 @@ control_window_normalise <- function(data, window_file, which = "bait_windows", 
 #' @export
 #' @param data a list of SummarizedExperiment objects from atacr::make_counts()
 #' @param which the subset of the data to normalise. Default = bait_windows
+#' @param per = the expression count / width gives the reads in the window divided by the width, so a 3000 nt gene with 30000 reads mapping to it will have a read count of just 10. Setting this parameter allows you to represent the counts per some other number of nts. Default = 1000, so gives the reads per kb of the gene.
 #' @return SummarizedExperiment object with normalised counts
-normalise_by_window_width <- function(data, which = "bait_windows"){
+normalise_by_window_width <- function(data, which = "bait_windows",  per= 1000){
   widths <- data[[which]]@rowRanges@ranges@width
   se <- data[[which]]
   d <- SummarizedExperiment::assay(se)
-  norm_mat <- d / widths
+  norm_mat <- (d / (widths / per)) # per kb
   SummarizedExperiment::assay(se) <- norm_mat
   return(se)
 }
