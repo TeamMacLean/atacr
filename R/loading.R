@@ -254,8 +254,9 @@ read_experiment_info <- function(filename) {
 #' @param type feature type of features to extract.
 #' @param col column name of GFF file containing id to use (ID)
 #' @param out_file path of file name to write. If NULL, no file is written
+#' @param version which gff version to export (Default is "3")
 #' @return GenomicRanges or NULL with GFF outfile.
-extract_features_from_gff <- function(ids, gff, type = c("gene"), col="ID", out_file = NULL){
+extract_features_from_gff <- function(ids, gff, type = c("gene"), col="ID", out_file = NULL, version = "3"){
   gff <- rtracklayer::import.gff(gff, "GFF")
   gene_features <- as(gff, "GRanges")
   gene_features <- gene_features[ gene_features$type %in% type ]
@@ -264,7 +265,7 @@ extract_features_from_gff <- function(ids, gff, type = c("gene"), col="ID", out_
     return(gene_features)
   }
   else{
-    rtracklayer::export.gff(gene_features, out_file)
+    rtracklayer::export.gff(gene_features, out_file, version = version)
   }
 
 }
