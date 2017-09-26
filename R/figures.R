@@ -245,7 +245,7 @@ plot_counts <- function(data, which = "bait_windows", log10 = TRUE){
   d <- reshape2::melt(SummarizedExperiment::assay(data[[which]]))
   colnames(d) <- c("name", "sample", "count")
   d$window_type <- factor(rep(which,length(d$name)))
-  count <- sample <- window_type <- NULL
+  count <- window_type <- NULL
   p <- ggplot2::ggplot(d) +
     ggplot2::aes(x = count, y = sample) +
     ggjoy::geom_joy(ggplot2::aes(fill = window_type),alpha = 0.7) +
