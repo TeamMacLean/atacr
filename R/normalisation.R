@@ -236,7 +236,6 @@ control_window_normalise <- function(data, window_file, which = "bait_windows", 
 #' @return SummarizedExperiment object with normalised counts
 normalise_by_window_width <- function(data, which = "bait_windows"){
   widths <- data[[which]]@rowRanges@ranges@width
-  return(
-    SummarizedExperiment::assay(data[[which]]) / widths
-  )
+  d <- SummarizedExperiment::assay(data[[which]]) / widths
+  return( SummarizedExperiment::assay(d) )
 }
