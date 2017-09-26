@@ -168,6 +168,7 @@ scale_normalise <- function( sample_matrix, scaling_factors){ #nocov start
 #' @export
 #' @param data a list of SummarizedExperiment objects from atacr::make_counts()
 #' @param which the subdivision of the genome to calculate correlations either 'whole_genome', 'bait_windows' or 'non_bait_windows'
+#' @param scaling_factors a vector of scaling factors to normalise by
 #' @return a SummarizedExperiment with scale normalised window values
 scale_factor_normalise <- function(data, which = "bait_windows", scaling_factors = NULL){
   se <-  data[[which]]
@@ -226,4 +227,16 @@ control_window_normalise <- function(data, window_file, which = "bait_windows", 
       SummarizedExperiment::assay(d) <- full_mat
       return( d )
     }
+}
+
+#' normalise counts by window width (counts / window width)
+#' @export
+#' @param data a list of SummarizedExperiment objects from atacr::make_counts()
+#' @param which the subset of the data to normalise. Default = bait_windows
+#' @return SummarizedExperiment object with normalised counts
+normalise_by_window_width <- function(data, which = "bait_windows"){
+  widths <- data[[which]]@rowRanges@ranges@width
+  return(
+    SummarizedExperiment::assay(data[[which]]) / widths
+  )
 }

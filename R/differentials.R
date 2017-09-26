@@ -239,15 +239,13 @@ estimate_bayes_factor <- function(atacr, treatment_a, treatment_b, which = "bait
 #' @param which the subset of windows to consider
 #' @param factor the BayesFactor to consider significant
 estimate_bayes_factor_multiclass <- function(data, common_control, which = "bait_windows", factor = 4) {
-  treatments <- data$treatments[data$treatments != common_control]
+  treatments <- unique(data$treatments[data$treatments != common_control])
   control <- rep(common_control, length(treatments))
   comparisons <- cbind(treatments, control)
-  print(comparisons)
   r <- list()
   for (i in 1:nrow(comparisons)) {
     tr <- comparisons[i,][1]
     ct <- comparisons[i,][2]
-
     df <- estimate_bayes_factor(data,
       tr,
       ct,

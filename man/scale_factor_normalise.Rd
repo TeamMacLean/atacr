@@ -10,6 +10,8 @@ scale_factor_normalise(data, which = "bait_windows", scaling_factors = NULL)
 \item{data}{a list of SummarizedExperiment objects from atacr::make_counts()}
 
 \item{which}{the subdivision of the genome to calculate correlations either 'whole_genome', 'bait_windows' or 'non_bait_windows'}
+
+\item{scaling_factors}{a vector of scaling factors to normalise by}
 }
 \value{
 a SummarizedExperiment with scale normalised window values

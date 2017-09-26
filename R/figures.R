@@ -191,6 +191,7 @@ coverage_summary <-
       p <- ggplot2::ggplot(data) +
           ggplot2::aes(x = count, y = sample) +
         ggjoy::geom_joy(ggplot2::aes(fill = window_type),alpha = 0.7) +
+        ggplot2::facet_grid(. ~ window_type ) +
         ggthemes::scale_color_ptol()  +
         ggthemes::scale_fill_ptol() +
         ggplot2::theme_minimal() +
@@ -208,7 +209,7 @@ coverage_summary <-
 
     if (is.null(which) & is.null(samp)) {
       count <- window_type <- NULL
-      p <- cov_joy_plot(all) + ggplot2::facet_grid(. ~ window_type ) +
+      p <- cov_joy_plot(all)
       return(p)
     }
 
@@ -232,6 +233,37 @@ coverage_summary <-
     }
 
   }
+
+#' Plot distribution of counts in given data set
+#' @export
+#' @param data a list of SummarizedExperiment objects from atacr::make_counts()
+#' @param which the subdivision of the genome to plot
+#' @param log10 log 10 the counts for plotting.
+#' @return ggplot2 plot
+plot_counts <- function(data, which = "bait_windows", log10 = TRUE){
+
+  d <- reshape2::melt(SummarizedExperiment::assay(data[[which]]))
+  colnames(d) <- c("name", "sample", "count")
+  d$window_type <- factor(rep(which,length(d$name)))
+  count <- sample <- window_type <- NULL
+  p <- ggplot2::ggplot(d) +
+    ggplot2::aes(x = count, y = sample) +
+    ggjoy::geom_joy(ggplot2::aes(fill = window_type),alpha = 0.7) +
+    ggthemes::scale_color_ptol()  +
+    ggthemes::scale_fill_ptol() +
+    ggplot2::theme_minimal() +
+    ggplot2::ggtitle("Coverage Distribution") +
+    ggplot2::labs(x = "Read Count", y = "Number of Windows") +
+    ggplot2::theme(legend.position = "none")
+
+   if (log10) {
+    p <- p + ggplot2::aes(x = log10(count + 1), y = sample)
+    p <- p + ggplot2::labs(x = "Log 10 Read Count", y = "Number of Windows")
+   }
+  return(p)
+
+}
+
 
 #' Plot density of read counts by sample over the chromosomes
 #' @export
@@ -445,3 +477,6 @@ view_gene <-
 
   }
 # nocov end
+
+
+
