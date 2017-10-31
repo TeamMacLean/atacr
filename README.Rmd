@@ -33,9 +33,7 @@ devtools::install_github("TeamMacLean/atacr")
 
 
 
-## Example
-
-This is a basic example which shows you how to solve a common problem:
+## Quick start:
 
 ```{r example, echo=TRUE, fig.height=7, fig.width=7}
 library(atacr)

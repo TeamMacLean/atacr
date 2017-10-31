@@ -1,0 +1,121 @@
+---
+title: "Loading data"
+author: "Dan MacLean"
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_vignette:
+    fig_caption: yes
+vignette: >
+  %\VignetteIndexEntry{Loading Data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+All counts are computed from sorted, indexed BAM files using the `make_counts()` function. This function requires two files:
+
+    1. A GFF [1] file of bait regions on the genome
+    2. A csv file showing the sample -> treatment -> bam file mappings for the experiment. 
+    
+The mapping file has the following structure:
+
+"sample_name", | "bam_file_path", | "treatment"
+---------------|------------------|------------
+"control_001", | "data/control1/aligned_merged_sorted.bam" | "control"
+"control_002", | "data/control2/aligned_merged_sorted.bam" | "control"
+"control_003", | "data/control3/aligned_merged_sorted.bam" | "control"
+"treatment_001", | "data/treatment1/aligned_merged_sorted.bam" | "treatment"
+"treatment_002", | "data/treatment2/aligned_merged_sorted.bam" | "treatment"
+"treatment_003", | "data/treatment3/aligned_merged_sorted.bam" | "treatment"
+
+The BAM indices (`.bai` files) are presumed to be with the BAM files.
+
+## Differences between ATACseq and RNAseq data within `atacr`. 
+
+As far as `atacr` is concerned, ATACseq data is counted into equal sized windows within the bait windows - so that you end up with many more regions with counts, than you have baits. This behaviour means you can find regions of smaller than bait size that are differentially accessible. Conversely, RNAseq data is counted into one window per region declared in the GFF file, so you get just one expression estimate per gene/transcript. 
+
+## Loading ATACseq data
+
+ATACseq is the default data type expected in `atacr`. The `make_counts()` call is the simplest in this case.
+
+```{r, echo=TRUE, eval=FALSE}
+counts <- make_counts("bait_regions.gff", 
+                      "sample_treatment_mapping.csv")
+```
+
+### Set genomic window width
+
+The width of the genomic windows in which to compute counts across the defined bait regions is set to 50 nt, to change this use the `width` parameter to the size of the windows you want to use, e.g 100 nt. 
+
+```{r, echo=TRUE, eval=FALSE}
+counts <- make_counts("bait_regions.gff", 
+                      "sample_treatment_mapping.csv",
+                      width = 100)
+```
+
+## Loading RNAseq data
+
+When loading RNAseq data it is neccesary to set the `is_rnaseq` option in `make_counts()`
+
+```{r, echo = TRUE, eval=FALSE}
+
+counts <- make_counts("bait_regions.gff", 
+                      "sample_treatment_mapping.csv",
+                       is_rnaseq = TRUE)
+```
+
+### Setting quality filters when computing counts from BAM files
+
+`atacr` allows you to set values determining which reads will be included in counts. By default a simple filter object can be passed from the `make_params()` function to the `filter_params` argument of `make_counts()`. 
+
+```{r, echo = TRUE, eval = FALSE}
+
+my_params = make_params(
+    paired_map = TRUE, 
+    minq = 30, 
+    dedup = TRUE
+  )
+
+counts <- make_counts("bait_regions.gff", 
+                      "sample_treatment_mapping.csv",
+                       is_rnaseq = TRUE,
+                       filter_params = my_params )
+```
+
+
+The `paired_map` option sets whether reads must be mapped as pairs to be counted, `TRUE` is the default. The `dedup` option removes reads that seem like PCR duplicates to the aligner `TRUE` is the default. `minq` sets the minimum PHRED mapping quality score for a read to be counted, `30` is the default
+
+### Advanced Quality filters RNAseq
+
+If you require greater control over mapping filters for read counts from RNAseq, you can use an `Rsamtools::ScanBamParam()` object instead. See [https://www.rdocumentation.org/packages/Rsamtools/versions/1.24.0/topics/ScanBamParam](https://www.rdocumentation.org/packages/Rsamtools/versions/1.24.0/topics/ScanBamParam) for details
+
+### Advanced Quality filters ATACseq
+
+For greater control over mapping filters for read counts when using ATACseq data, use a `csaw::readParam()` object. See [http://bioconductor.org/packages/release/bioc/manuals/csaw/man/csaw.pdf](http://bioconductor.org/packages/release/bioc/manuals/csaw/man/csaw.pdf) for details. 
+
+
+## Region names
+
+Region names are loaded from the GFF file. As GFF is a bit of a fluid format different files may encode this information differently. By default, `make_counts()` will look into the attribute (final) column in the GFF and use the attribute called `ID`. To use a different attribute set `gene_id_col`
+
+```{r, eval=FALSE, echo=TRUE}
+counts <- make_counts("bait_regions.gff", 
+                      "sample_treatment_mapping.csv",
+                       gene_id_col = "GENE_NAME")
+```
+
+## Output - an `atacr` object
+
+The result of `make_counts()` is an `atacr` object of counts, basically an R `list` with slots for counts from bait windows, non-bait windows, the sample and BAM information. The count information is held in 'SummarizedExperiment' objects from Bioconductor. See [http://bioconductor.org/packages/release/bioc/html/SummarizedExperiment.html](http://bioconductor.org/packages/release/bioc/html/SummarizedExperiment.html) for details.
+
+## Saving a count object
+
+Computing the `atacr` count object can take a while, especially when you are analysing many BAM files. It can be useful to save the object after computation. This can be done with base R's `saveRDS()` function.
+
+```{r echo=TRUE, eval=FALSE}
+saveRDS(counts, file="my_output_file.rds")
+
+reloaded_counts <- readRDS("my_output_file.rds")
+```
+
+[1] <http://gmod.org/wiki/GFF3#GFF3> 

@@ -1,0 +1,95 @@
+---
+title: "Differentially accessible or expressed windows"
+author: "Dan MacLean"
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_vignette:
+    fig_caption: yes
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+Finding windows that correspond to differentially expressed or accessible windows is possible with two related functions in `atacr` - `estimate_fdr()` which implements bootstrap _t_-tests, via the boot package and `estimate_bayes_factor()` which implements a Bayes factor ANOVA using the BayesFactor package.  A tidy dataframe of results is returned in each case.
+
+```{r, echo=FALSE, eval=TRUE}
+library(atacr)
+normalized_counts <- simulate_counts()
+result <- estimate_fdr(normalized_counts,
+             treatment_a =  "treatment",
+              treatment_b = "control")
+```
+
+### Bootstrap  _t_-tests 
+
+For simple comparison of two treatments with bootstrap _t_ tests, provide treatment 'a' and 'b' names and the number of bootstrap iterations (default is 10, which is fast for testing code, but useless analytically). You can set the threshold for marking as significant with `fdr_level`.
+
+```{r, echo=TRUE, eval=FALSE}
+ result <- estimate_fdr(normalized_counts,
+              treatment_a =  "treatment",
+              treatment_b = "control",
+              iterations = 100000,
+              fdr_level = 0.01)
+```
+```{r, echo=FALSE, eval=TRUE}
+head(result)
+```
+
+The output has columns as follows:
+
+  * `window` - the name of the window with data on this row
+  * `t` - the value of the _t_ statistic for the first (non-bootstrap) iteration
+  * `p_value` - the computed _p_ value for the window
+  * `fdr` - the false detection rate at this window
+  * `mean_count_a` - the mean count for treatment 'a'
+  * `mean_count_b` - the mean count for treatment 'b'
+  * `sd_a` - standard deviation for treatment 'a'
+  * `sd_b` - standard deviation for treatment 'b'
+  * `log2_fc` - log 2 of the ratio of the mean counts
+  * `is_sig` - flag showing whether window was significant according to the level set in the function with parameter `fdr_level`
+  
+  
+To analyse all treatments against a common comparison at once you can use the wrapper function `estimate_fdr_multiclass()` which requires the name of the common comparison treatment 
+
+
+
+```{r, echo=TRUE, eval=FALSE}
+multi_result <-  estimate_fdr_multiclass(normalized_counts,
+              common_control = "control",
+              iterations = 100000,
+              fdr_level = 0.01)
+
+head(multi_result)
+```
+
+```{r, echo=FALSE, eval=TRUE}
+multi_result <-  estimate_fdr_multiclass(normalized_counts,
+              common_control = "control")
+head(multi_result)
+```
+
+The results here has two extra columns:
+
+  * a - the name of the treatment 
+  * b - the name of the common control
+  
+### Bayes Factor Analysis
+
+A similar pair of functions is available for Bayes factor analysis. `estimate_bayes_factor()` for the two-way comparison. The `factor` argument sets the Bayes factor at which to mark the window as having different counts. 
+
+```{r}
+result_bf <-  estimate_bayes_factor(normalized_counts,
+                           treatment_a =  "treatment",
+                           treatment_b = "control",
+                                factor = 2.0)
+
+head(result_bf)
+```
+
+
+Again, a `estimate_bayes_factor_multiclass()` function works for all comparisons to a common control.
+
+The results data frame is similar to that from the Bootstrap _t_ methods, with a `factor` column in place of the `t` and `fdr` columns.
+
+

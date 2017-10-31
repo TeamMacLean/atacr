@@ -9,8 +9,10 @@ Does not do any filtering of lists, so selected genes must be filtered before ha
 make_UpSetR(df)
 }
 \arguments{
-\item{df}{dataframe from estimate_fdr_multiclass
-return list of named vectors suitable for UpSetR fromList() function}
+\item{df}{dataframe from estimate_fdr_multiclass}
+}
+\value{
+list of named vectors suitable for UpSetR fromList() function
 }
 \description{
 given a dataframe from the estimate_fdr_multiclass() function, will return a

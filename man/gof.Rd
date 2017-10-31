@@ -2,11 +2,7 @@
 % Please edit documentation in R/normalisation.R
 \name{gof}
 \alias{gof}
-\title{estimates Goodness of Fit for each row in a count matrix
-See:
-https://haroldpimentel.wordpress.com/?s=TMM#paperList
-https://academic.oup.com/biostatistics/article/13/3/523/248016/Normalization-testing-and-false-discovery-rate
-https://github.com/cran/PoissonSeq/blob/3d9bc4b1744cb45714d4442b5a879b6e0c68b4a2/R/ps_other.R}
+\title{estimates Goodness of Fit for each row in a count matrix}
 \usage{
 gof(mat)
 }
@@ -18,8 +14,4 @@ a named vector of GoF estimates
 }
 \description{
 estimates Goodness of Fit for each row in a count matrix
-See:
-https://haroldpimentel.wordpress.com/?s=TMM#paperList
-https://academic.oup.com/biostatistics/article/13/3/523/248016/Normalization-testing-and-false-discovery-rate
-https://github.com/cran/PoissonSeq/blob/3d9bc4b1744cb45714d4442b5a879b6e0c68b4a2/R/ps_other.R
 }

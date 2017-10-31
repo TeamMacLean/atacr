@@ -45,7 +45,6 @@ bootstrap_t <- function(data, iterations=10){
 
 
 select_comparisons <- function(data, treatment_a, treatment_b, which = "bait_windows"){
-
     l <- list()
     sample_matrix <- SummarizedExperiment::assay(data[[which]])
     treatment_a_cols <- data$sample_names[which(data$treatments == treatment_a) ]

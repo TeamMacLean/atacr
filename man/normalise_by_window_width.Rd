@@ -4,12 +4,14 @@
 \alias{normalise_by_window_width}
 \title{normalise counts by window width (counts / window width)}
 \usage{
-normalise_by_window_width(data, which = "bait_windows")
+normalise_by_window_width(data, which = "bait_windows", per = 1000)
 }
 \arguments{
 \item{data}{a list of SummarizedExperiment objects from atacr::make_counts()}
 
 \item{which}{the subset of the data to normalise. Default = bait_windows}
+
+\item{per}{= the expression count / width gives the reads in the window divided by the width, so a 3000 nt gene with 30000 reads mapping to it will have a read count of just 10. Setting this parameter allows you to represent the counts per some other number of nts. Default = 1000, so gives the reads per kb of the gene.}
 }
 \value{
 SummarizedExperiment object with normalised counts

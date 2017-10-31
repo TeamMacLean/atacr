@@ -213,12 +213,12 @@ ay <- function(test, control) {
 #' Does not do any filtering of lists, so selected genes must be filtered before hand e.g with dplyr
 #' @export
 #' @param df dataframe from estimate_fdr_multiclass
-#' return list of named vectors suitable for UpSetR fromList() function
+#' @return list of named vectors suitable for UpSetR fromList() function
 make_UpSetR <- function(df) {
   log2_fc <- direction <- a <- NULL
   r <- df %>%
     dplyr::mutate(
-      direction = ifelse(log2_fc > 0, "open", "closed"),
+      direction = ifelse(log2_fc > 0, "up", "down"),
       category = paste0(direction, "_", a)
     )
   r <- r %>% split(r$category) %>%

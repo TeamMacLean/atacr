@@ -1,12 +1,12 @@
 #' estimates Goodness of Fit for each row in a count matrix
-#' See:
-#' https://haroldpimentel.wordpress.com/?s=TMM#paperList
-#' https://academic.oup.com/biostatistics/article/13/3/523/248016/Normalization-testing-and-false-discovery-rate
-#' https://github.com/cran/PoissonSeq/blob/3d9bc4b1744cb45714d4442b5a879b6e0c68b4a2/R/ps_other.R
+#'
 #' @param mat a count matrix usually from SummarizedExperiment::assay()
 #' @return a named vector of GoF estimates
 gof <- function(mat){
 
+  #see https://haroldpimentel.wordpress.com/?s=TMM#paperList
+  # https://academic.oup.com/biostatistics/article/13/3/523/248016/Normalization-testing-and-false-discovery-rate
+  # https://github.com/cran/PoissonSeq/blob/3d9bc4b1744cb45714d4442b5a879b6e0c68b4a2/R/ps_other.R
   pseudo_val <- 1e-10
 
   shats <- colSums(mat) / sum(mat)
@@ -104,6 +104,7 @@ library_size_normalisation <- function(data, which = "bait_windows", by_treatmen
 
 
 }
+#'
 
 average_matrix_by_sample <- function(data, which = "bait_windows") {
   l <- list()

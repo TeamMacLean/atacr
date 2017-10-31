@@ -11,7 +11,7 @@ ma_plot(data, which = "bait_windows", by = NULL)
 
 \item{which}{the subset of windows to operate on}
 
-\item{by}{a vector of  subset of the genome to work}
+\item{by}{a vector of seqnames of the genome to view}
 }
 \description{
 plot M (log2 ratio of a windows sample count to windows all-sample median count ) versus A (log2 sum of a windows sample count to a windows all-sample median count ) for each window

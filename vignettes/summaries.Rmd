@@ -1,0 +1,74 @@
+---
+title: "Summaries"
+author: "Dan MacLean"
+date: "`r Sys.Date()`"
+output:
+  rmarkdown::html_vignette:
+    fig_caption: yes
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+The `atacr` package provides functions for getting quick summaries of your data. An overview comes from `summary()`
+
+```{r, echo=FALSE, eval=TRUE}
+library(atacr)
+counts <- simulate_counts()
+```
+
+```{r, echo=TRUE, eval=TRUE}
+summary(counts)
+```
+
+which shows the on and off target hit counts, the quantiles and the mean read depths.
+
+The count distributions across the bait and non-bait windows by sample can be plotted quickly with `coverage_summary()`.
+
+```{r, echo=TRUE, eval=TRUE, fig.width=7}
+coverage_summary(counts)
+```
+
+## Diagnostic plots 
+
+It is possible to look coverage in a given data set and look at raw counts.
+
+```{r, fig.width=7}
+plot_counts(counts, which = "bait_windows", log10 = FALSE)
+```
+
+### Low counts in windows
+
+The number of windows below a threshold for each experiment can be seen with `windows_below_coverage_threshold_plot()`, and you can set the lower and upper bounds with the `to` and `from` arguments.
+
+```{r, echo=TRUE, eval=TRUE, fig.width=7}
+
+windows_below_coverage_threshold_plot(counts, from = 5, to = 25)
+```
+
+
+### MA plots
+
+MA plots of sample count versus all sample median count - to highlight odd looking experiments and extreme outliers - can be displayed with `ma_plot()`. By default this will use the `bait_windows` data, but you can set the `which` argument to use other subsets, e.g `non_bait_windows` 
+```{r, fig.width=7}
+ma_plot(counts)
+```
+
+### Per chromosome plots
+
+These are bar charts of coverage at the windows across the chromosomes (`seqnames`) provided in the data.
+
+```{r, fig.width=7, fig.height=7, fig.cap="The simulated data here are spread randomly across the chromosome."}
+plot_count_by_chromosome(counts)
+```
+
+### Sample comparison plots
+
+A matrix of correlation between counts in the samples can be plot with the `sample_correlation_plot()` function. In this plot the colour and size scale of the dots represents the Pearson correlation coefficient. Pairwise comparisons with _p_ < 0.05 have a blank space.
+
+```{r, fig.width=7}
+sample_correlation_plot(counts)
+```
+
+

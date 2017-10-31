@@ -1,0 +1,93 @@
+---
+title: "Normalisations"
+author: "Dan MacLean"
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_vignette:
+    fig_caption: yes
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+Normalisations help make the count estimates more easily comparable between experiments. `atacr` provides a few options for this.
+
+## Library size normalisation
+
+This is the simplest, but probably the least useful normalisation. The total counts are scaled such that each sample has a similar total count to account for different sequencing depths. This procedure can be done in one step with `library_size_normalisation()`
+
+```{r, echo=FALSE, eval=TRUE}
+library(atacr)
+counts <- simulate_counts()
+```
+
+```{r}
+normalised_counts <- library_size_normalisation(counts)
+```
+
+The `by_treatment` option will group the samples into different treatments and normalise each separately. This method assumes that within treatment groups the samples should show little difference, but between sample treatment groups could show lots of difference and prevents the treatment structure affecting the wider experiment. 
+
+```{r,eval=FALSE}
+by_sample_normalised_counts <- library_size_normalisation(counts, 
+                                             by_treatment = TRUE)
+```
+
+## Control gene normalisation
+
+This option allows you to perform a scaling of the data based on user-specified control regions, usually these will be genomic windows corresponding to baits from control genes/regions. A one-step option is to provide these control gene locations to `control_window_normalise()` in a separate file.
+
+```{r, eval=FALSE}
+control_gene_normalised_counts <- control_window_normalise(counts, "my_controls.csv")
+```
+
+The control window file should be a simple `.csv` file with header and columns `seq_name,start_pos,end_pos,bait_name`.
+
+
+## Finding internal scaling factors
+
+A better way to normalise will often be to find the least variable windows in your sample and scale by those. `atacr` provides a method for doing this by `goodness of fit` as described previously in [Li et al, 2012](https://academic.oup.com/biostatistics/article/13/3/523/248016/Normalization-testing-and-false-discovery-rate) and [on Harold Pimentel's blog](https://haroldpimentel.wordpress.com/2014/12/08/in-rna-seq-2-2-between-sample-normalization/).
+
+Essentially, Goodness of Fit (GoF) is a method of estimating variability over samples for each window. Each window gets a GoF, the lower it is, the lower the variability. These should then be the best ones to use as controls for scaling. The vector of normalisation factors for each sample can be obtained using `get_GoF_factors()`
+
+```{r}
+gof_norm_factors <- get_GoF_factors(counts)
+gof_norm_factors
+```
+
+## Applying scaling factors 
+
+If you have a set of scaling factors from `get_GoF_factors()` or some other package or function, then it is possible to apply them to the data using the `scale_factor_normalise()` function.
+
+```{r, fig.width=7 }
+gof_normalised_counts <- scale_factor_normalise(counts, 
+                                          scaling_factors = gof_norm_factors)
+
+## You can add the normalised counts to a slot on the original object
+counts$normalised_counts <- gof_normalised_counts
+
+plot_counts(counts, which = "normalised_counts")
+```
+
+## Comparing sets of potential control genes
+
+To allow comparison the GoF metric of different sets of windows (e.g those determined by `get_GoF_factors()` or your own list) we can plot the distribution of 'control' windows against the rest using `plot_GoF()`, we just need a vector of names of windows to use as controls.  
+
+The `atacr` function `find_controls_by_GoF()` is useful here, it returns a vector of window names used by the normalisation that can be plugged into the plot. Alternatively, a character vector of your own  
+
+```{r, fig.width=7}
+auto_controls <- find_controls_by_GoF(counts)
+head(auto_controls)
+
+plot_GoF(counts, controls = auto_controls)
+
+```
+
+## Further normalisations by window size and other factors
+
+The normalisations described here are not sensitive to factors such as window size and the counts from them may need to be corrected further, especially for RNAseq data with different window sizes. There are many packages in the Bioconductor libraries and on CRAN that can be used for this, check out the [edgeR](http://bioconductor.org/packages/release/bioc/html/edgeR.html), [DESeq](https://bioconductor.org/packages/release/bioc/html/DESeq.html) and [csaw](https://bioconductor.org/packages/release/bioc/html/csaw.html) packages among others.
+
+
+
+
+

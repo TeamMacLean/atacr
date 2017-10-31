@@ -1,8 +1,3 @@
-## loads in the bams and the list of bait windows.
-## uses the read size to make valid windows
-## works out the windows and percent of reads outside the windows
-## works out coverage stats per experiment
-
 #' load BAM files and calculate window coverage
 #' @export
 #' @param window_file A filename of a CSV file with the bait regions

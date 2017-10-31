@@ -1,0 +1,48 @@
+---
+title: "atacr objects and the which argument"
+author: "Dan MacLean"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+## The `atacr` Object
+
+When `make_counts()` is run, an `atacr` object is returned. This is a simple, somewhat informal object based on the R list type. It is basically an R list with the following members:
+
+  1. treatments - a character vector of treatment names
+  2. samples - a character vector of sample names
+  3. bam_files - a character vector of paths for the used BAM files
+  4. bait_regions - a `GenomicRanges::Granges` object describing the bait window regions 
+  5. bait_windows - a `RangedSummarizedExperiment` object containing the counts in the windows in `bait_regions`
+  6. non_bait_windows - a `RangedSummarizedExperiment` object containing the counts in the windows in the regoions outside `bait_regions`
+  7. whole_genome - the union of bait_windows and non_bait_windows
+  8. dataframe - an optional member and the result of calling `as.data.frame()` on the `atacr` object
+  
+### Column Order
+
+The `RangedSummarizedExperiment` objects carry the count data. They are organised as a matrix with rows representing windows and columns different samples. Their order is conserved and is the same as that in the `treatments`, `samples` and `bam_files`.
+
+## The 'which' argument
+
+Many of the functions allow you to state which member of the `atacr` list (really a `RangedSummarizedExperiment`) you wish to apply the function to with the `which` argument, e.g
+
+```{r, eval=FALSE}
+plot_counts(counts, which = "bait_windows", log10 = FALSE)
+```
+
+## Adding members to the `atacr` object
+
+In this way you can use functions that return `RangedSummarizedExperiment`s to become new members in the list and work on them as with the built in ones, this is especially useful for normalisations.
+
+```{r, eval=FALSE}
+
+counts$by_sample <- library_size_normalisation(counts, 
+                                             by_treatment = TRUE)
+
+plot_counts(counts, which = "by_sample", log10 = FALSE)
+```
+

@@ -84,7 +84,7 @@ windows_below_coverage_threshold_plot <-
 #' @export
 #' @param data an atacr object
 #' @param which the subset of windows to operate on
-#' @param by a vector of  subset of the genome to work
+#' @param by a vector of seqnames of the genome to view
 ma_plot <- function(data, which = "bait_windows", by = NULL) {
   sample_matrix <- matrix(0)
   # by is to decide on sub-group, IE whole window, chromosome, region
