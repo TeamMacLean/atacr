@@ -2,6 +2,5 @@ inst^.*\.Rproj$
 ^\.Rproj\.user$
 ^\.travis\.yml$
 ^.*\.Rproj$
-LICENSE
 ^README\.Rmd$
 ^README-.*\.png$
