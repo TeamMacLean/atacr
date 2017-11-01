@@ -10,10 +10,13 @@
 [![Last-changedate](https://img.shields.io/badge/last%20change-2017--11--01-yellowgreen.svg)](/commits/master)
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+    ## Warning in setup_ns_exports(pkg, export_all): Objects listed as exports,
+    ## but not present in namespace: simulate_counts
+
 atacr
 =====
 
-helps with the analysis of count data from RNA and ATAC capture-seq experiments. Using BioConductor RangedSummarizedExperiment objects, atacr implements a set of helper functions and quality control plots specific to the analysis of particularly windows. Especially, atacr is useful for performing control window based between sample normalizations and for easily running non-standard tests for differentially accessible windows in common reference designs.
+Helps with the analysis of count data from RNA-capture-seq and ATAC-capture-seq experiments. Using BioConductor RangedSummarizedExperiment objects, atacr implements a set of helper functions and quality control plots specific to the analysis of counts of reads in windows across genomes. Especially, atacr is useful for performing sample normalizations and for easily running bootstrap and Bayes factor tests for differentially accessible windows in common reference designs.
 
 Installation
 ------------
