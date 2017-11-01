@@ -10,9 +10,6 @@
 [![Last-changedate](https://img.shields.io/badge/last%20change-2017--11--01-yellowgreen.svg)](/commits/master)
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-    ## Warning in setup_ns_exports(pkg, export_all): Objects listed as exports,
-    ## but not present in namespace: simulate_counts
-
 atacr
 =====
 
