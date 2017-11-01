@@ -14,6 +14,7 @@ if (getRversion() >= "2.15.1")
 #' @importFrom utils capture.output read.csv str
 #' @importFrom methods as
 #' @importFrom SummarizedExperiment rbind
+#' @importFrom stats rlnorm
 no_func <-
   function(x) {
     return(FALSE)
