@@ -265,3 +265,14 @@ extract_features_from_gff <- function(ids, gff, type = c("gene"), col="ID", out_
   }
 
 }
+
+#' returns DGEList for edgeR from atacr object
+#' @export
+#' @param atacr an atacr object
+#' @param which the subset of the data to work on
+#' @param remove.zeros whether to remove rows that have 0 total count.
+#' @return DGEList representing atacr data
+as.DGEList <- function(atacr, which = "bait_windows", remove.zeros = FALSE ){
+  edgeR::DGEList(SummarizedExperiment::assay(atacr[[which]]), group = atacr$treatments, remove.zeros = remove.zeros)
+
+}

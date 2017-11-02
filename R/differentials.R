@@ -257,3 +257,79 @@ estimate_bayes_factor_multiclass <- function(data, common_control, which = "bait
   return(do.call(rbind, r))
 
 }
+
+edgeR_exact <- function(data, which = "bait_windows", treatment_a = NULL, treatment_b = NULL, remove.zeros = FALSE, sig_level = 0.05 ){
+
+  dlist <- select_data(data, treatment_a, treatment_b, which)
+
+  group <- c(rep(treatment_a, length(dlist$treatment_a_names)), rep(treatment_b, length(dlist$treatment_b_names)) )
+
+  dg <- edgeR::DGEList(dlist$counts, group = group, remove.zeros = remove.zeros)
+  dg <- estimateDisp(dg)
+  et <- edgeR::exactTest(dg)
+  names <- rownames(et$table)
+
+  result <- data.frame(
+    window = rownames(et$table),
+    p_value = et$table$PValue
+  )
+  result$is_sig <- (result$p_value <= sig_level)
+  result <- cbind(result, get_means(dlist$comparisons))
+  #add sd
+  result <- cbind(result, get_sd(dlist$comparisons))
+  #add log2 fc
+  result <-  get_fc(result)
+  return(result)
+}
+
+edgeR_multiclass <- function(data, common_control, which = "bait_windows", sig_level = 0.05, remove.zeros = FALSE){
+
+  ctrl_idcs <- which(data$treatments == common_control)
+  other_idcs <- which(data$treatments != common_control)
+  new_order <- c(ctrl_idcs, other_idcs)
+  treatments <- as.factor(data$treatments[ new_order ])
+  samples <- data$sample_names[ new_order ]
+  df <- data.frame(sample = samples, treatment = as.factor(as.numeric(treatments)))
+  design <- model.matrix(~treatment, data = df)
+  num_levels <- nlevels(as.factor(treatments))
+  dglist <- edgeR::DGEList(SummarizedExperiment::assay(data[[which]]), remove.zeros = remove.zeros)
+
+  dglist <- edgeR::estimateDisp(dglist, design)
+  fit <- edgeR::glmQLFit(dglist, design)
+
+  dgelrts <- list()
+
+  for (i in 2:num_levels) {
+    curr_t <- levels(treatments)[i]
+    dgelrts[[curr_t]] <- edgeR::glmQLFTest(fit, coef = i)
+  }
+
+  result <- list()
+
+  for(n in names(dgelrts)){
+    tb <- dgelrts[[n]]$table
+    df <-  data.frame(
+      window = rownames(tb),
+      p_value = tb$PValue,
+      f = tb$F
+    )
+
+    dlist <- select_data(data, n, common_control, which)
+    df$is_sig <- (df$p_value <= sig_level)
+    df <- cbind(df, get_means(dlist$comparisons))
+
+    #add sd
+    df <- cbind(df, get_sd(dlist$comparisons))
+    #add log2 fc
+    df <- get_fc(df)
+    df$a <- rep(n, nrow(df))
+    df$b <- rep(common_control, nrow(df))
+    result[[n]] <- df
+  }
+  result <- do.call(rbind, result)
+  rownames(result) <- NULL
+  return(result)
+
+
+
+}
