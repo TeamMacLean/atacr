@@ -7,6 +7,8 @@ r: bioc-release
 r_packages:
   - covr
 
+warnings_are_errors: false
+
 after_success:
   - Rscript -e 'library(covr); codecov()'
 
