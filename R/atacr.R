@@ -257,3 +257,8 @@ make_UpSetR <- function(df) {
 #' The data `small_counts` is basically the same thing as `sim_counts` with smaller sample of 100 bait / non-bait windows.
 #' @format a list of SummarizedExperiment objects
 "small_counts"
+
+#' athal_wt_counts - real capture RNASeq count data
+#' The data `athal_wt_counts` are real, experimentally derived counts from untreated WT Arabidopsis leaves for 52 baits, each set of baits representing a gene. Three replicates are provided for each gene. This data set is intended to be used in resampling procedures for making test data sets.
+#' @format a named vector of counts
+"athal_wt_counts"

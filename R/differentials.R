@@ -35,7 +35,11 @@ bootstrap_t <- function(data, iterations=10){
   boot_res <- boot::boot(data, statistic=get_t, R=iterations)
   original <- boot_res$t0
   bootstraps <- boot_res$t
-  p <- 1 - (sum(bootstraps > original) / iterations)
+
+  p <- (sum(bootstraps > original) / iterations)
+  if (original < 0) {
+    p <- sum(bootstraps < original) / iterations
+  }
   #names(p) <- "p_val"
   return(c(original, p))
 }
@@ -257,7 +261,12 @@ estimate_bayes_factor_multiclass <- function(data, common_control, which = "bait
   return(do.call(rbind, r))
 
 }
-
+#' Estimate differential window counts  and mark significantly different windows using edgeR exact method for two samples
+#' @export
+#' @param data an atacr object
+#' @param common_control the treatment to consider the control for all other treatments
+#' @param which the subset of windows to consider
+#' @param sig_level the p_value to consider significant
 edgeR_exact <- function(data, which = "bait_windows", treatment_a = NULL, treatment_b = NULL, remove.zeros = FALSE, sig_level = 0.05 ){
 
   dlist <- select_data(data, treatment_a, treatment_b, which)
@@ -265,7 +274,7 @@ edgeR_exact <- function(data, which = "bait_windows", treatment_a = NULL, treatm
   group <- c(rep(treatment_a, length(dlist$treatment_a_names)), rep(treatment_b, length(dlist$treatment_b_names)) )
 
   dg <- edgeR::DGEList(dlist$counts, group = group, remove.zeros = remove.zeros)
-  dg <- estimateDisp(dg)
+  dg <- edgeR::estimateDisp(dg)
   et <- edgeR::exactTest(dg)
   names <- rownames(et$table)
 
@@ -281,7 +290,13 @@ edgeR_exact <- function(data, which = "bait_windows", treatment_a = NULL, treatm
   result <-  get_fc(result)
   return(result)
 }
-
+#' Estimate differential window counts  and mark significantly different windows using edgeR glmFIT method for multiple samples with common control
+#' @export
+#' @param data an atacr object
+#' @param treatment_a the first treatment to consider
+#' @param treatment_b the second treatment to consider
+#' @param which the subset of windows to consider
+#' @param sig_level the p_value to consider significant
 edgeR_multiclass <- function(data, common_control, which = "bait_windows", sig_level = 0.05, remove.zeros = FALSE){
 
   ctrl_idcs <- which(data$treatments == common_control)

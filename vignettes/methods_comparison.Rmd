@@ -1,0 +1,28 @@
+---
+title: "Simulations"
+author: "Dan MacLean"
+date: "03/11/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Simulated data
+
+Our capture RNAseq data has a double peak in the count distribution. Here is a density plot of WT counts from RNAseq data
+
+```{r cars}
+plot(density(log(atacr::athal_wt_counts)))
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
