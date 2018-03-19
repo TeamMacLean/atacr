@@ -478,5 +478,25 @@ view_gene <-
   }
 # nocov end
 
+#' PCA plot of samples
+#' @export
+#' @param data atacr object
+#' @param which the subset of the data to plot
+#'
+#' @return ggplot object
+sample_pca_plot <- function(data, which = "bait_regions") {
 
+  sample_matrix <- SummarizedExperiment::assay(data[[which]])
+  df_pca <- prcomp(sample_matrix)
+  df_out_r <- as.data.frame(df_pca$rotation)
+  df_out_r$sample <- row.names(df_out_r)
+  p <- ggplot2::ggplot(df_out_r) +
+    ggplot2::aes(x = PC1,y = PC2,label=sample, color = sample ) +
+    ggplot2::geom_point() + ggplot2::geom_text(size = 3) +
+    ggthemes::scale_color_ptol()  +
+    ggthemes::scale_fill_ptol() +
+    ggplot2::theme_minimal()
+  return(p)
+
+}
 
