@@ -6,7 +6,7 @@
  
 [![minimal R version](https://img.shields.io/badge/R%3E%3D-3.0.0-6666ff.svg)](https://cran.r-project.org/)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/atacr)](https://cran.r-project.org/package=atacr)
-[![packageversion](https://img.shields.io/badge/Package%20version-0.4.14-orange.svg?style=flat-square)
+[![package_version](https://img.shields.io/badge/Package%20version-0.4.14-orange.svg?style=flat-square)
 
 
 ---------------------------------------
