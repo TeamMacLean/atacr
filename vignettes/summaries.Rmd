@@ -71,4 +71,8 @@ A matrix of correlation between counts in the samples can be plot with the `samp
 sample_correlation_plot(counts)
 ```
 
+A PCA plot that clusters the most simlar samples can also be generated using the `sample_pca_plot()` function.  
 
+```{r, fig.width=7}
+sample_pca_plot(counts)
+```

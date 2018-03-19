@@ -484,7 +484,7 @@ view_gene <-
 #' @param which the subset of the data to plot
 #'
 #' @return ggplot object
-sample_pca_plot <- function(data, which = "bait_regions") {
+sample_pca_plot <- function(data, which = "bait_windows") {
 
   sample_matrix <- SummarizedExperiment::assay(data[[which]])
   df_pca <- prcomp(sample_matrix)
