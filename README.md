@@ -1,15 +1,19 @@
+[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
+[![Build Status](https://travis-ci.org/TeamMacLean/atacr.svg?branch=master)](https://travis-ci.org/TeamMacLean/atacr)
+[![codecov](https://codecov.io/gh/TeamMacLean/atacr/branch/master/graph/badge.svg)](https://codecov.io/gh/TeamMacLean/atacr)
+ 
+-----------------------------------------
+ 
+[![minimal R version](https://img.shields.io/badge/R%3E%3D-3.0.0-6666ff.svg)](https://cran.r-project.org/)
+[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/atacr)](https://cran.r-project.org/package=atacr)
+[![packageversion](https://img.shields.io/badge/Package%20version-0.4.14-orange.svg?style=flat-square)](commits/master)
 
-[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active) [![Build Status](https://travis-ci.org/TeamMacLean/atacr.svg?branch=master)](https://travis-ci.org/TeamMacLean/atacr) [![codecov](https://codecov.io/gh/TeamMacLean/atacr/branch/master/graph/badge.svg)](https://codecov.io/gh/TeamMacLean/atacr)
 
-------------------------------------------------------------------------
-
-[![minimal R version](https://img.shields.io/badge/R%3E%3D-3.0.0-6666ff.svg)](https://cran.r-project.org/) [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/atacr)](https://cran.r-project.org/package=atacr) [![packageversion](https://img.shields.io/badge/Package%20version-0.4.14-orange.svg?style=flat-square)](commits/master)
-
-------------------------------------------------------------------------
-
-[![Last-changedate](https://img.shields.io/badge/last%20change-2018--03--19-yellowgreen.svg)](/commits/master)
-
+---------------------------------------
+ 
+[![Last-changedate](https://img.shields.io/badge/last%20change-`r gsub('-', '--', Sys.Date())`-yellowgreen.svg)](/commits/master)
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+
 atacr
 =====
 
