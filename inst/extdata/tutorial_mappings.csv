@@ -1,0 +1,7 @@
+treatment,sample_name,bam_file_path
+4h_mock,4h_mock_rep1,inst/extdata/ATAC102/alignedSorted.bam
+4h_mock,4h_mock_rep2,inst/extdata/ATAC202/alignedSorted.bam
+4h_mock,4h_mock_rep3,inst/extdata/ATAC302/alignedSorted.bam
+4h_infected,4h_infected_rep1,inst/extdata/ATAC103/alignedSorted.bam
+4h_infected,4h_infected_rep2,inst/extdata/ATAC203/alignedSorted.bam
+4h_infected,4h_infected_rep3,inst/extdata/ATAC303/alignedSorted.bam

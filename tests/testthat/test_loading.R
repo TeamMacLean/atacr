@@ -17,12 +17,12 @@ test_that("get_bait_regions_from_text() gets correct bait regions", {
 
 
 
-all_atac <-   make_counts('individual_bait_regions.txt',
+all_atac <-   make_counts('individual_bait_regions.gff',
   'sample_treatment_bam_mappings_for_test.csv',
   filter_params = make_params(paired_map = FALSE, minq=1, dedup = F))
 
 filtered_atac <-
-  make_counts('individual_bait_regions.txt',
+  make_counts('individual_bait_regions.gff',
     'sample_treatment_bam_mappings_for_test.csv')
 
 filtered_rnaseq <-

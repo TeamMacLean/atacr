@@ -62,6 +62,10 @@ make_params <- function(paired_map = TRUE, minq = 30, dedup = TRUE){
 get_bait_regions_from_text <- function(file_name) {
   df <- read.csv(file_name, sep = ",", header = TRUE)
 
+  if ( !all(c("bait_name", "seq_name", "start_pos", "end_pos") %in% colnames(df)) ) {
+    stop("File must have a header with columns bait_name, seq_name, start_pos, end_pos.")
+  }
+
   bait_regions <- GenomicRanges::GRanges(
     seqnames = S4Vectors::Rle(df$seq_name),
     ranges = IRanges::IRanges(
@@ -81,7 +85,7 @@ get_bait_regions_from_text <- function(file_name) {
 get_bait_regions_from_gff <- function(file_name) {
   gff <- rtracklayer::import.gff(file_name)
   bait_regions <- as(gff, "GRanges")
-  bait_regions <- bait_regions[bait_regions$type %in% c("gene")]
+  #bait_regions <- bait_regions[bait_regions$type %in% c("gene")]
   return(bait_regions)
 }
 
@@ -123,7 +127,7 @@ load_atac <- function(result, width, filter_params, window_file) {
   colnames(result$whole_genome) <- result$sample_names
 
   ## collect bait and non bait regions
-  result$bait_regions <- get_bait_regions_from_text(window_file)
+  result$bait_regions <- get_bait_regions_from_gff(window_file)
 
   keep <-
     IRanges::overlapsAny(SummarizedExperiment::rowRanges(result$whole_genome),
@@ -238,8 +242,14 @@ make_range_names <- function(chr, start, width) {
 
 #' Loads in a CSV file describing treatment, samples and bam files
 #' @param filename path and name of the file to load
-read_experiment_info <- function(filename) {
-  return(read.csv(filename, header = TRUE, sep = ","))
+read_experiment_info <- function(filename, should_be = c("treatment",     "sample_name",   "bam_file_path")) {
+  info <- read.csv(filename, header = TRUE, sep = ",")
+  if (all(should_be %in% colnames(info))) {
+    return(info)
+  }
+  else{
+    stop("experiment mapping file should have headings: ", paste0(should_be, collapse = " "))
+  }
   ## read in file with columns 'treatment, sample_name, bam_file_path'
 }
 
@@ -275,4 +285,43 @@ extract_features_from_gff <- function(ids, gff, type = c("gene"), col="ID", out_
 as.DGEList <- function(atacr, which = "bait_windows", remove.zeros = FALSE ){
   edgeR::DGEList(SummarizedExperiment::assay(atacr[[which]]), group = atacr$treatments, remove.zeros = remove.zeros)
 
+}
+#' writes GFF3 version of a simple text file describing the bait region starts and stops
+#' @export
+#' @param text_in path to the file describing the bait regions. File must have a header with columns `bait_name`, `seq_name`, `start_pos`, `end_pos`.
+#' @param gff_out path to the gff file to be created
+#' @return NULL
+text_to_gff <- function(text_in, gff_out){
+  if ( is.null(text_in) || is.null( gff_out ) ) {
+    stop("must provide an input text file AND output text file")
+  }
+
+  bait_regions <- get_bait_regions_from_text(text_in)
+  rtracklayer::export.gff3(bait_regions, gff_out)
+}
+
+
+#' make files to load tutorial data
+#'
+#'
+#'
+#' @param write_dir directory to put sample files in defaults to `getwd()`
+#' @export
+make_tutorial_data <- function(write_dir = getwd() ){
+
+  out_mappings <- file.path(write_dir, "sample_treatment_bam_mappings.csv")
+
+  dir_names <- list.files(dirname(system.file("extdata", "bait_regions.gff", package = "atacr")), include.dirs = TRUE, pattern = "ATAC",full.names = TRUE  )
+
+  df <- data.frame(
+    "treatment" = c( rep("mock", 3), rep("infected", 3)),
+    "sample_name" = c(paste0("mock_rep", 1:3), paste0("infected_rep", 1:3)),
+    "bam_file_path" = file.path(dir_names, "alignedSorted.bam" )
+  )
+
+  write.csv(df, file = out_mappings, quote = FALSE, row.names = FALSE)
+
+  out_gff <- file.path(write_dir, "bait_regions.gff")
+  file.copy(system.file("extdata/", "bait_regions.gff", package = "atacr"), out_gff )
+  return( list(bait_regions_file = out_gff, mapping_file = out_mappings))
 }

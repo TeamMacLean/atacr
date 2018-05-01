@@ -35,9 +35,12 @@ bootstrap_t <- function(data, iterations=10){
   boot_res <- boot::boot(data, statistic=get_t, R=iterations)
   original <- boot_res$t0
   bootstraps <- boot_res$t
-
   p <- (sum(bootstraps > original) / iterations)
-  if (original < 0) {
+  if ( is.nan(original) | is.na(original)){
+    p <- original
+  }
+
+  else if (original < 0) {
     p <- sum(bootstraps < original) / iterations
   }
   #names(p) <- "p_val"
@@ -121,13 +124,18 @@ check_data <- function(d, treatment_a, treatment_b){
 #' @param which the subset of windows to consider
 #' @param iterations the number of bootstrap iterations to perform
 #' @param fdr_level the level at which to mark FDR as significant
-estimate_fdr <- function(data, treatment_a, treatment_b, which = "bait_windows", iterations=10,fdr_level=0.05){
+#' @param remove_zeroes remove all windows that have a summed count of zero before computing
+estimate_fdr <- function(data, treatment_a, treatment_b, which = "bait_windows", iterations=10,fdr_level=0.05, remove_zeroes = FALSE){
 
 
   d <- select_data(data, treatment_a, treatment_b, which)
-
   check_data(d, treatment_a, treatment_b)
 
+  if (remove_zeroes) {
+    x <- rowSums(d$counts ) > 0
+    d$counts <- d$counts[x, ]
+
+  }
   #calc bootstrap p-values
 
   result <- apply(d$counts, 1, bootstrap_t, iterations = iterations)
@@ -146,6 +154,13 @@ estimate_fdr <- function(data, treatment_a, treatment_b, which = "bait_windows",
   #names(fdr) <- ("fdr")
   #result <- cbind(result, fdr)
 
+  is_sig <- result[,"fdr"] <= fdr_level
+
+
+  result <- as.data.frame(result)
+  result$is_sig <- is_sig
+  result$window <- rownames(d$counts)
+
   #add means
   result <- cbind(result, get_means(d$comparisons))
   #add sd
@@ -153,13 +168,6 @@ estimate_fdr <- function(data, treatment_a, treatment_b, which = "bait_windows",
   #add log2 fc
   result <-  get_fc(result)
 
-
-  is_sig <- result[,"fdr"] <= fdr_level
-
-
-  result <- as.data.frame(result)
-  result$is_sig <- is_sig
-  result$window <- rownames(d$counts)
   #sort by fdr
   #result <- dplyr::arrange(result, fdr)
   return(result)#[,c(10,1:9)])
@@ -213,12 +221,21 @@ bayes_t <- function(counts, treatment_a_names, treatment_b_names){
 #' @param treatment_b the second treatment to consider
 #' @param which the subset of windows to consider
 #' @param factor the BayesFactor at which to mark window as significant
+#' @param remove_zeroes remove all windows that have a summed count of zero before computing
 #' @return a dataframe
-estimate_bayes_factor <- function(atacr, treatment_a, treatment_b, which = "bait_windows", factor = 4){
+estimate_bayes_factor <- function(atacr, treatment_a, treatment_b, which = "bait_windows", factor = 4, remove_zeroes= FALSE){
 
   d <- select_data(atacr, treatment_a, treatment_b, which)
   check_data(d, treatment_a, treatment_b)
+
+  if (remove_zeroes) {
+    x <- rowSums(d$counts ) > 0
+    d$counts <- d$counts[x, ]
+  }
+
+
   result <- apply(as.data.frame(d$counts), 1, bayes_t, treatment_a_names = d$treatment_a_names, treatment_b_names = d$treatment_b_names)
+
 
   result <- data.frame(
     window = names(result),
@@ -267,13 +284,13 @@ estimate_bayes_factor_multiclass <- function(data, common_control, which = "bait
 #' @param common_control the treatment to consider the control for all other treatments
 #' @param which the subset of windows to consider
 #' @param sig_level the p_value to consider significant
-edgeR_exact <- function(data, which = "bait_windows", treatment_a = NULL, treatment_b = NULL, remove.zeros = FALSE, sig_level = 0.05 ){
+edgeR_exact <- function(data, which = "bait_windows", treatment_a = NULL, treatment_b = NULL, remove_zeros = FALSE, sig_level = 0.05 ){
 
   dlist <- select_data(data, treatment_a, treatment_b, which)
 
   group <- c(rep(treatment_a, length(dlist$treatment_a_names)), rep(treatment_b, length(dlist$treatment_b_names)) )
 
-  dg <- edgeR::DGEList(dlist$counts, group = group, remove.zeros = remove.zeros)
+  dg <- edgeR::DGEList(dlist$counts, group = group, remove.zeros = remove_zeros)
   dg <- edgeR::estimateDisp(dg)
   et <- edgeR::exactTest(dg)
   names <- rownames(et$table)
