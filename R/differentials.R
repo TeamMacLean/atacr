@@ -15,7 +15,6 @@ get_t <- function(data,indices){
     t.test(x,y)$statistic
   },
     warning = function(w){
-      print(w)
       return(NA)
     },
     error = function(e){
@@ -30,26 +29,20 @@ get_t <- function(data,indices){
 #'runs bootstrap t test, wrapper required for boot::boot function
 #' @param data matrix of sample data
 #' @param iterations number of bootstrap iterations to run
-#' @return vector of 2 items, observed value t statisitc and p, calculated as proportion of bootstrap iterations greater than original t
+#' @return vector of 2 columns, observed value t statisitc and p, calculated as proportion of bootstrap iterations greater than original t
 bootstrap_t <- function(data, iterations=10){
-  boot_res <- boot::boot(data, statistic=get_t, R=iterations)
+  boot_res <- boot::boot(data, statistic = get_t, R = iterations)
   original <- boot_res$t0
   bootstraps <- boot_res$t
   p <- (sum(bootstraps > original) / iterations)
-  if ( is.nan(original) | is.na(original)){
+  if ( is.nan(original) | is.na(original) ) {
     p <- original
   }
-
   else if (original < 0) {
     p <- sum(bootstraps < original) / iterations
   }
-  #names(p) <- "p_val"
   return(c(original, p))
 }
-
-
-
-
 
 select_comparisons <- function(data, treatment_a, treatment_b, which = "bait_windows"){
     l <- list()
@@ -61,23 +54,32 @@ select_comparisons <- function(data, treatment_a, treatment_b, which = "bait_win
     return(l)
 }
 
-get_means <- function(comparisons){
+get_means <- function(data){
 
-  mean_count_a <- apply(comparisons$treatment_a_data, 1, mean)
-  mean_count_b <- apply(comparisons$treatment_b_data, 1, mean)
-  return(cbind(mean_count_a,mean_count_b))
+  mean_count_a <- apply(data$comparisons$treatment_a_data, 1, mean)
+  mean_count_b <- apply(data$comparisons$treatment_b_data, 1, mean)
+  result <- data.frame(
+    c1 = mean_count_a,
+    c2 = mean_count_b
+  )
+  colnames(result) <- c(paste0("mean_", data$treatment_a_name), paste0("mean_", data$treatment_b_name) )
+  return( result )
 }
 
-get_sd <- function(comparisons){
-  sd_a <- apply(comparisons$treatment_a_data, 1, sd)
-  sd_b <- apply(comparisons$treatment_b_data, 1, sd)
-  return(cbind(sd_a,sd_b))
+get_sd <- function(data){
+  sd_a <- apply(data$comparisons$treatment_a_data, 1, sd)
+  sd_b <- apply(data$comparisons$treatment_b_data, 1, sd)
+  result <- data.frame(
+    c1 = sd_a,
+    c2 = sd_b
+  )
+  colnames(result) <- c(paste0("sd_", data$treatment_a_name), paste0("sd_", data$treatment_b_name) )
+  return( result )
 }
 
-get_fc <- function(result){
-  mean_count_a <- mean_count_b <- NULL
-  result <- dplyr::mutate(result, log2_fc = log2(mean_count_a) - log2(mean_count_b))
-  return(result)
+get_fc <- function(data){
+  means <- get_means(data)
+  return(data.frame(log2_fold_change = log2(means[,1] / means[,2])))
 }
 
 #' selects appropriate columns and names from a
@@ -96,7 +98,9 @@ select_data <- function(data, treatment_a, treatment_b, which = NULL){
       counts = comparison_matrix,
       comparisons = comparison_list,
       treatment_a_names = data$sample_names[which(data$treatments == treatment_a)],
-      treatment_b_names = data$sample_names[which(data$treatments == treatment_b)]
+      treatment_b_names = data$sample_names[which(data$treatments == treatment_b)],
+      treatment_a_name = treatment_a,
+      treatment_b_name = treatment_b
       )
     )
 
@@ -124,53 +128,35 @@ check_data <- function(d, treatment_a, treatment_b){
 #' @param which the subset of windows to consider
 #' @param iterations the number of bootstrap iterations to perform
 #' @param fdr_level the level at which to mark FDR as significant
-#' @param remove_zeroes remove all windows that have a summed count of zero before computing
-estimate_fdr <- function(data, treatment_a, treatment_b, which = "bait_windows", iterations=10,fdr_level=0.05, remove_zeroes = FALSE){
+estimate_fdr <- function(data, treatment_a, treatment_b, which = "bait_windows", iterations=10,fdr_level=0.05){
 
 
   d <- select_data(data, treatment_a, treatment_b, which)
   check_data(d, treatment_a, treatment_b)
 
-  if (remove_zeroes) {
-    x <- rowSums(d$counts ) > 0
-    d$counts <- d$counts[x, ]
+  working_df <- as.data.frame(d$counts)
+  row.names(working_df) <- rownames(d$counts)
 
-  }
-  #calc bootstrap p-values
+  selected_df <- working_df[rowSums(working_df) > 0,]
 
-  result <- apply(d$counts, 1, bootstrap_t, iterations = iterations)
-  result <- t(result)
-  colnames(result) <- c("t", "p_value")
+  selected_result <- apply(selected_df, 1, bootstrap_t, iterations = iterations)
+  #colnames(selected_result) <- c("t", "fdr")
+  #selected_result <- apply(selected_df, 1, bayes_t, treatment_a_names = d$treatment_a_names, treatment_b_names = d$treatment_b_names)
 
-  result <- data.frame(
-    window = rownames(result),
-    t = result[, "t"],
-    p_value = result[,"p_value"]
-  )
-
-  #rownames(result) <- rownames(d$counts)
-  #calc FDR
-  result$fdr <- p.adjust(result[,"p_value"], method = "fdr")
-  #names(fdr) <- ("fdr")
-  #result <- cbind(result, fdr)
-
-  is_sig <- result[,"fdr"] <= fdr_level
+ selected_result <- as.data.frame(t(selected_result)) %>%
+  dplyr::rename("fdr" = V2) %>%
+    dplyr::mutate(window = colnames(selected_result))
 
 
-  result <- as.data.frame(result)
-  result$is_sig <- is_sig
-  result$window <- rownames(d$counts)
 
-  #add means
-  result <- cbind(result, get_means(d$comparisons))
-  #add sd
-  result <- cbind(result, get_sd(d$comparisons))
-  #add log2 fc
-  result <-  get_fc(result)
+  working_df$window <- row.names(working_df)
 
-  #sort by fdr
-  #result <- dplyr::arrange(result, fdr)
-  return(result)#[,c(10,1:9)])
+  result <- dplyr::left_join(working_df, selected_result, by = "window") %>%
+    dplyr::mutate(is_sig = fdr <= fdr_level) %>%
+    dplyr::bind_cols( get_means(d) ) %>%
+    dplyr::bind_cols( get_sd(d) ) %>%
+    dplyr::bind_cols( get_fc(d))
+  return(result)
 
 }
 
@@ -221,34 +207,30 @@ bayes_t <- function(counts, treatment_a_names, treatment_b_names){
 #' @param treatment_b the second treatment to consider
 #' @param which the subset of windows to consider
 #' @param factor the BayesFactor at which to mark window as significant
-#' @param remove_zeroes remove all windows that have a summed count of zero before computing
 #' @return a dataframe
-estimate_bayes_factor <- function(atacr, treatment_a, treatment_b, which = "bait_windows", factor = 4, remove_zeroes= FALSE){
+estimate_bayes_factor <- function(atacr, treatment_a, treatment_b, which = "bait_windows", factor = 4){
 
   d <- select_data(atacr, treatment_a, treatment_b, which)
   check_data(d, treatment_a, treatment_b)
 
-  if (remove_zeroes) {
-    x <- rowSums(d$counts ) > 0
-    d$counts <- d$counts[x, ]
-  }
+  working_df <- as.data.frame(d$counts)
+  row.names(working_df) <- rownames(d$counts)
 
+  selected_df <- working_df[rowSums(working_df) > 0,]
 
-  result <- apply(as.data.frame(d$counts), 1, bayes_t, treatment_a_names = d$treatment_a_names, treatment_b_names = d$treatment_b_names)
+  selected_result <- apply(selected_df, 1, bayes_t, treatment_a_names = d$treatment_a_names, treatment_b_names = d$treatment_b_names)
 
+   selected_result <- data.frame(
+     bayes_factor = selected_result,
+     window = row.names(selected_df)
+   )
 
-  result <- data.frame(
-    window = names(result),
-    bayes_factor = result
-    )
-  result$is_sig <- (result$bayes_factor >= factor)
-  result <- cbind(result, get_means(d$comparisons))
-  #add sd
-  result <- cbind(result, get_sd(d$comparisons))
-  #add log2 fc
-  result <-  get_fc(result)
-
-
+  working_df$window <- row.names(working_df)
+   result <- dplyr::left_join(working_df, selected_result, by = "window") %>%
+     dplyr::mutate(is_sig = bayes_factor >= factor) %>%
+     dplyr::bind_cols( get_means(d) ) %>%
+     dplyr::bind_cols( get_sd(d) ) %>%
+     dplyr::bind_cols( get_fc(d))
   return(result)
 }
 
@@ -280,17 +262,17 @@ estimate_bayes_factor_multiclass <- function(data, common_control, which = "bait
 }
 #' Estimate differential window counts  and mark significantly different windows using edgeR exact method for two samples
 #' @export
-#' @param data an atacr object
+#' @param atacr an atacr object
 #' @param common_control the treatment to consider the control for all other treatments
 #' @param which the subset of windows to consider
 #' @param sig_level the p_value to consider significant
-edgeR_exact <- function(data, which = "bait_windows", treatment_a = NULL, treatment_b = NULL, remove_zeros = FALSE, sig_level = 0.05 ){
+edgeR_exact <- function(atacr, which = "bait_windows", treatment_a = NULL, treatment_b = NULL, remove_zeros = FALSE, sig_level = 0.05 ){
 
-  dlist <- select_data(data, treatment_a, treatment_b, which)
+  data <- select_data(atacr, treatment_a, treatment_b, which)
 
-  group <- c(rep(treatment_a, length(dlist$treatment_a_names)), rep(treatment_b, length(dlist$treatment_b_names)) )
+  group <- c(rep(treatment_a, length(data$treatment_a_names)), rep(treatment_b, length(data$treatment_b_names)) )
 
-  dg <- edgeR::DGEList(dlist$counts, group = group, remove.zeros = remove_zeros)
+  dg <- edgeR::DGEList(data$counts, group = group, remove.zeros = remove_zeros)
   dg <- edgeR::estimateDisp(dg)
   et <- edgeR::exactTest(dg)
   names <- rownames(et$table)
@@ -299,12 +281,19 @@ edgeR_exact <- function(data, which = "bait_windows", treatment_a = NULL, treatm
     window = rownames(et$table),
     p_value = et$table$PValue
   )
-  result$is_sig <- (result$p_value <= sig_level)
-  result <- cbind(result, get_means(dlist$comparisons))
-  #add sd
-  result <- cbind(result, get_sd(dlist$comparisons))
-  #add log2 fc
-  result <-  get_fc(result)
+  # result$is_sig <- (result$p_value <= sig_level)
+  # result <- cbind(result, get_means(data$comparisons),row.names = NULL)
+  # #add sd
+  # result <- cbind(result, get_sd(data$comparisons),row.names = NULL)
+  # #add log2 fc
+  # result <-  get_fc(result)
+  # return(list(group = group))
+
+  result <- result %>%
+    dplyr::mutate(is_sig = p_value <= sig_level) #%>% this bit needs redoing - if remove_zeros == TRUE then the binds below fail. need to get means onlt for data that had zeros removed
+    #dplyr::bind_cols( get_means(data) ) %>%
+    #dplyr::bind_cols( get_sd(data) ) %>%
+    #dplyr::bind_cols( get_fc(data))
   return(result)
 }
 #' Estimate differential window counts  and mark significantly different windows using edgeR glmFIT method for multiple samples with common control
@@ -314,7 +303,7 @@ edgeR_exact <- function(data, which = "bait_windows", treatment_a = NULL, treatm
 #' @param treatment_b the second treatment to consider
 #' @param which the subset of windows to consider
 #' @param sig_level the p_value to consider significant
-edgeR_multiclass <- function(data, common_control, which = "bait_windows", sig_level = 0.05, remove.zeros = FALSE){
+edgeR_multiclass <- function(data, common_control, which = "bait_windows", sig_level = 0.05, remove_zeros = FALSE){
 
   ctrl_idcs <- which(data$treatments == common_control)
   other_idcs <- which(data$treatments != common_control)
@@ -324,7 +313,7 @@ edgeR_multiclass <- function(data, common_control, which = "bait_windows", sig_l
   df <- data.frame(sample = samples, treatment = as.factor(as.numeric(treatments)))
   design <- model.matrix(~treatment, data = df)
   num_levels <- nlevels(as.factor(treatments))
-  dglist <- edgeR::DGEList(SummarizedExperiment::assay(data[[which]]), remove.zeros = remove.zeros)
+  dglist <- edgeR::DGEList(SummarizedExperiment::assay(data[[which]]), remove.zeros = remove_zeros)
 
   dglist <- edgeR::estimateDisp(dglist, design)
   fit <- edgeR::glmQLFit(dglist, design)
