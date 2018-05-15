@@ -29,6 +29,19 @@ You can install atacr from github with:
 devtools::install_github("TeamMacLean/atacr")
 ```
 
+Documentation
+--------------
+
+You can read documentation on the following topics
+
+  1. [Tutorial - A worked example](https://teammaclean.github.io/atacr)
+  2. [atacR - General Overview](https://teammaclean.github.io/atacr/atacr.html)
+  3. [Loading Data](https://teammaclean.github.io/atacr/loading.html)
+  3. [Summaries of Data](https://teammaclean.github.io/atacr/summaries.html)
+  4. [Normalising Data](https://teammaclean.github.io/atacr/normalisations.html)
+  5. [Differential Windows](https://teammaclean.github.io/atacr/differential_windows.html)
+  6. [Subsetting Data](https://teammaclean.github.io/atacr/atacr_which.html)
+
 Quick start:
 ------------
 
