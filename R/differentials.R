@@ -128,6 +128,7 @@ check_data <- function(d, treatment_a, treatment_b){
 #' @param which the subset of windows to consider
 #' @param iterations the number of bootstrap iterations to perform
 #' @param fdr_level the level at which to mark FDR as significant
+#' @return dataframe of counts and statistics
 estimate_fdr <- function(data, treatment_a, treatment_b, which = "bait_windows", iterations=10,fdr_level=0.05){
 
 
@@ -185,6 +186,9 @@ estimate_fdr_multiclass <- function(data, common_control, which = "bait_windows"
                     fdr_level = fdr_level)
          df$a <- rep(tr, nrow(df))
          df$b <- rep(ct, nrow(df))
+         colnames(df)[grep("mean_", colnames(df))] <- c("mean_a", "mean_b")
+         colnames(df)[grep("sd_", colnames(df))] <- c("sd_a", "sd_b")
+         df <- df[, c("window",  "fdr", "is_sig", "mean_a", "mean_b", "sd_a", "sd_b", "log2_fold_change", "a", "b")]
     r[[i]] <- df
     }
   return(do.call(rbind, r))
@@ -207,7 +211,7 @@ bayes_t <- function(counts, treatment_a_names, treatment_b_names){
 #' @param treatment_b the second treatment to consider
 #' @param which the subset of windows to consider
 #' @param factor the BayesFactor at which to mark window as significant
-#' @return a dataframe
+#' @return a dataframe of counts and statistics
 estimate_bayes_factor <- function(atacr, treatment_a, treatment_b, which = "bait_windows", factor = 4){
 
   d <- select_data(atacr, treatment_a, treatment_b, which)
@@ -240,6 +244,7 @@ estimate_bayes_factor <- function(atacr, treatment_a, treatment_b, which = "bait
 #' @param common_control the treatment to consider the control for all other treatments
 #' @param which the subset of windows to consider
 #' @param factor the BayesFactor to consider significant
+#' @return a dataframe of counts and statistics
 estimate_bayes_factor_multiclass <- function(data, common_control, which = "bait_windows", factor = 4) {
   treatments <- unique(data$treatments[data$treatments != common_control])
   control <- rep(common_control, length(treatments))
@@ -255,8 +260,12 @@ estimate_bayes_factor_multiclass <- function(data, common_control, which = "bait
       factor = factor)
     df$a <- rep(tr, nrow(df))
     df$b <- rep(ct, nrow(df))
+    colnames(df)[grep("mean_", colnames(df))] <- c("mean_a", "mean_b")
+    colnames(df)[grep("sd_", colnames(df))] <- c("sd_a", "sd_b")
+    df <- df[, c("window",  "bayes_factor", "is_sig", "mean_a", "mean_b", "sd_a", "sd_b", "log2_fold_change", "a", "b")]
     r[[i]] <- df
   }
+
   return(do.call(rbind, r))
 
 }
@@ -266,9 +275,12 @@ estimate_bayes_factor_multiclass <- function(data, common_control, which = "bait
 #' @param common_control the treatment to consider the control for all other treatments
 #' @param which the subset of windows to consider
 #' @param sig_level the p_value to consider significant
+#' @return a dataframe of counts and statistics
 edgeR_exact <- function(atacr, which = "bait_windows", treatment_a = NULL, treatment_b = NULL, remove_zeros = FALSE, sig_level = 0.05 ){
 
   data <- select_data(atacr, treatment_a, treatment_b, which)
+  working_df <- as.data.frame(data$counts)
+  row.names(working_df) <- rownames(data$counts)
 
   group <- c(rep(treatment_a, length(data$treatment_a_names)), rep(treatment_b, length(data$treatment_b_names)) )
 
@@ -277,23 +289,18 @@ edgeR_exact <- function(atacr, which = "bait_windows", treatment_a = NULL, treat
   et <- edgeR::exactTest(dg)
   names <- rownames(et$table)
 
-  result <- data.frame(
+  selected_result <- data.frame(
     window = rownames(et$table),
     p_value = et$table$PValue
   )
-  # result$is_sig <- (result$p_value <= sig_level)
-  # result <- cbind(result, get_means(data$comparisons),row.names = NULL)
-  # #add sd
-  # result <- cbind(result, get_sd(data$comparisons),row.names = NULL)
-  # #add log2 fc
-  # result <-  get_fc(result)
-  # return(list(group = group))
 
-  result <- result %>%
-    dplyr::mutate(is_sig = p_value <= sig_level) #%>% this bit needs redoing - if remove_zeros == TRUE then the binds below fail. need to get means onlt for data that had zeros removed
-    #dplyr::bind_cols( get_means(data) ) %>%
-    #dplyr::bind_cols( get_sd(data) ) %>%
-    #dplyr::bind_cols( get_fc(data))
+  working_df$window <- row.names(working_df)
+
+  result <- dplyr::left_join(working_df, selected_result, by = "window") %>%
+    dplyr::mutate(is_sig = p_value <= sig_level) %>%
+    dplyr::bind_cols( get_means(data) ) %>%
+    dplyr::bind_cols( get_sd(data) ) %>%
+    dplyr::bind_cols( get_fc(data))
   return(result)
 }
 #' Estimate differential window counts  and mark significantly different windows using edgeR glmFIT method for multiple samples with common control
@@ -302,17 +309,22 @@ edgeR_exact <- function(atacr, which = "bait_windows", treatment_a = NULL, treat
 #' @param treatment_a the first treatment to consider
 #' @param treatment_b the second treatment to consider
 #' @param which the subset of windows to consider
-#' @param sig_level the p_value to consider significant
+#' @param remove_zeros apply edgeR remove.zeros argument
+#' @return a list of "DGELRT" objects for each comparison
 edgeR_multiclass <- function(data, common_control, which = "bait_windows", sig_level = 0.05, remove_zeros = FALSE){
 
   ctrl_idcs <- which(data$treatments == common_control)
   other_idcs <- which(data$treatments != common_control)
   new_order <- c(ctrl_idcs, other_idcs)
+
   treatments <- as.factor(data$treatments[ new_order ])
   samples <- data$sample_names[ new_order ]
+
+
   df <- data.frame(sample = samples, treatment = as.factor(as.numeric(treatments)))
   design <- model.matrix(~treatment, data = df)
-  num_levels <- nlevels(as.factor(treatments))
+  num_levels <- nlevels(as.factor(unique(treatments)))
+
   dglist <- edgeR::DGEList(SummarizedExperiment::assay(data[[which]]), remove.zeros = remove_zeros)
 
   dglist <- edgeR::estimateDisp(dglist, design)
@@ -321,35 +333,39 @@ edgeR_multiclass <- function(data, common_control, which = "bait_windows", sig_l
   dgelrts <- list()
 
   for (i in 2:num_levels) {
-    curr_t <- levels(treatments)[i]
+    curr_t <- unique(data$treatments[ new_order ])[i]
     dgelrts[[curr_t]] <- edgeR::glmQLFTest(fit, coef = i)
   }
 
-  result <- list()
-
-  for(n in names(dgelrts)){
-    tb <- dgelrts[[n]]$table
-    df <-  data.frame(
-      window = rownames(tb),
-      p_value = tb$PValue,
-      f = tb$F
-    )
-
-    dlist <- select_data(data, n, common_control, which)
-    df$is_sig <- (df$p_value <= sig_level)
-    df <- cbind(df, get_means(dlist$comparisons))
-
-    #add sd
-    df <- cbind(df, get_sd(dlist$comparisons))
-    #add log2 fc
-    df <- get_fc(df)
-    df$a <- rep(n, nrow(df))
-    df$b <- rep(common_control, nrow(df))
-    result[[n]] <- df
-  }
-  result <- do.call(rbind, result)
-  rownames(result) <- NULL
-  return(result)
+  return(dgelrts)
+  # result <- list()
+  #
+  # for(n in names(dgelrts)){
+  #   tb <- dgelrts[[n]]$table
+  #   df <-  data.frame(
+  #     window = rownames(tb),
+  #     p_value = tb$PValue,
+  #     f = tb$F
+  #   )
+  #
+  #
+  #   dlist <- select_data(data, n, common_control, which)
+  #   df$is_sig <- (df$p_value <= sig_level)
+  #
+  #   df <- cbind(df, get_means(dlist$comparisons))
+  #
+  #   #add sd
+  #   df <- cbind(df, get_sd(dlist$comparisons))
+  #   #add log2 fc
+  #   df <- get_fc(df)
+  #   df$a <- rep(n, nrow(df))
+  #   df$b <- rep(common_control, nrow(df))
+  #   result[[n]] <- df
+  #
+  # }
+  # result <- do.call(rbind, result)
+  # rownames(result) <- NULL
+  # return(result)
 
 
 

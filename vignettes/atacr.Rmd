@@ -97,10 +97,3 @@ multi_result <- estimate_fdr_multiclass(sim_counts, "control", which = "bait_win
 pander::pandoc.table(head(multi_result))
 ```
 
-## Visualise windows with the same pattern across experiments
-```{r, fig.height=7, fig.width=7}
-library(UpSetR)
-u <- make_UpSetR(multi_result)
-
-upset(fromList(u))
-```

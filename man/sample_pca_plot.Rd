@@ -4,7 +4,7 @@
 \alias{sample_pca_plot}
 \title{PCA plot of samples}
 \usage{
-sample_pca_plot(data, which = "bait_regions")
+sample_pca_plot(data, which = "bait_windows")
 }
 \arguments{
 \item{data}{atacr object}

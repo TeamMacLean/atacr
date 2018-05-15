@@ -4,7 +4,8 @@
 \alias{read_experiment_info}
 \title{Loads in a CSV file describing treatment, samples and bam files}
 \usage{
-read_experiment_info(filename)
+read_experiment_info(filename, should_be = c("treatment", "sample_name",
+  "bam_file_path"))
 }
 \arguments{
 \item{filename}{path and name of the file to load}
