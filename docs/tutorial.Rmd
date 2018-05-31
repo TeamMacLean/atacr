@@ -133,7 +133,7 @@ In this MA plot we see some structure in the data, the strong lines in each subp
 
 ## Normalisation
 
-The normalisation step helps us to reduce systematic between-sample variability. Sequence data are hard to normalise, and cannot be normalised well by simple scaling. For RNASeq data there are numerous methods such as FPKM etc that sort of normalise. The best approaches with ATAC-cap-seq data are to find the least varying windows and use those to scale the rest of the data with. 
+The normalisation step helps us to reduce systematic between-sample variability. Sequence data are hard to normalise, and cannot be normalised well by simple scaling. For RNASeq data there are numerous methods such as FPKM etc that sort of normalise. The best approaches with ATAC-cap-seq data are to find the least varying windows, then calculate factors  and use those to scale the rest of the data with. 
 
 `atacR` provides three types of normalisation. These are 
 
@@ -141,11 +141,11 @@ The normalisation step helps us to reduce systematic between-sample variability.
   2. Scale factor 
   3. Goodness of Fit 
   
-The best of these is 3. Goodness of Fit. It is fast, automatically finds the least varying and best features in the data to normalise on and does a reasonable job of between-sample normalisation. It is usually the best one to choose.  
+The best of these is 3. Goodness of Fit. It is fast, automatically finds the least varying and best features in the data to normalise with and does a reasonable job of between-sample normalisation. It is usually the best one to choose. It is particularly useful when you don't know whether many windows will be changing or just a few will be, as it should perform the same regardless.  
 
-The Library size normalisation is the most basic and the one that most studies seem to think constitutes normalisation - the basis of this is that each count is divided by the mean count for all samples in that treatment the sample. For most ATAC purposes this will be underpowered, because of skew caused by the s
+The Library size normalisation is the most basic and the one that most studies seem to use for normalisation - the basis of this is that each count is divided by the mean count for all samples in that treatment the sample. For most ATAC purposes this will be underpowered, because the low number of windows or high proportions of changing windows will cause skew between samples. This method useful when you have reasonably high counts (> 20 mean) and you are certain few windows (< 10%) will display differential counts.
 
-The Scale factor normalisation is provided to allow interaction with other normalisation from other packages. With this you provide a number for each sample and the counts in each sample are divided by the respective number.
+The Scale factor normalisation is provided to allow interaction with other normalisation from other packages. With this you provide a number for each sample and the counts in each sample are divided by the respective number. It is only useful when you have some other method that generates factors that you wish to use to scale counts. 
 
 Check out the [normalisations vignette](normalisations.html) for further information.
 

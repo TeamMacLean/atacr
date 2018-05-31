@@ -4,3 +4,4 @@
 .Ruserdata
 inst/doc
 atacr.Rproj
+*.DS_Store

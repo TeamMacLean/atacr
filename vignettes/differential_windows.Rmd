@@ -10,6 +10,12 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
+```{r echo = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE
+)
+```
 
 Finding windows that correspond to differentially expressed or accessible windows is possible with two related functions in `atacr` - `estimate_fdr()` which implements bootstrap _t_-tests, via the boot package and `estimate_bayes_factor()` which implements a Bayes factor ANOVA using the BayesFactor package.  A tidy dataframe of results is returned in each case.
 
@@ -92,4 +98,26 @@ Again, a `estimate_bayes_factor_multiclass()` function works for all comparisons
 
 The results data frame is similar to that from the Bootstrap _t_ methods, with a `factor` column in place of the `t` and `fdr` columns.
 
+### EdgeR analysis
 
+The single comparison edgeR analysis returns a dataframe similar to the above methods.
+
+In all the runs of edgeR the `estimateDisp()` function is used. This means that the `edgeR_exact()` methods will be increasingly less useful as a greater proportion of windows show differential counts. edgeR is the most powerful method when only a few genes are showing differential counts, use the other methods in other cases.
+
+You can tell edgeR to ignore data with zero counts in all samples using `remove_zeros`
+
+```{r}
+result_edger <-  edgeR_exact(normalized_counts,
+                           treatment_a =  "treatment",
+                           treatment_b = "control",
+                           remove_zeros = TRUE)
+
+head(result_edger)
+```
+
+The edgeR multiclass variant, `edgeR_multiclass()` also uses the `estimateDisp()` function in all cases. The `edgeR_multiclass()` function does not return a dataframe, instead it returns the native `DGELRT` objects (see [the DGELRT manual](https://www.rdocumentation.org/packages/edgeR/versions/3.14.0/topics/DGELRT-class) for more information) from each comparison in a `list()` object with names as per the treatment used.
+
+```{r}
+edgeR_multiclass(normalized_counts,"mock", 
+  remove_zeros = TRUE)
+```
