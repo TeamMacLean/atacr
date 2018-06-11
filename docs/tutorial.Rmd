@@ -198,7 +198,7 @@ We can perform differential analysis in the following ways, we'll use the `which
 
 
  edgeRexact_result <-  edgeR_exact(counts,
-                which = "normalised_counts",
+                which = "bait_windows",
                 treatment_a =  "infected",
                treatment_b = "mock",
                 remove_zeros = TRUE)
@@ -254,6 +254,6 @@ The `edgeR_multiclass()` function does not return a dataframe, instead it return
 ```{r}
 edgeR_multiclass(counts,"mock", 
   remove_zeros = TRUE, 
-  which = "normalised_counts")
+  which = "bait_windows")
 ```
 

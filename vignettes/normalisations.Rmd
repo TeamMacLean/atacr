@@ -33,12 +33,12 @@ by_sample_normalised_counts <- library_size_normalisation(counts,
                                              by_treatment = TRUE)
 ```
 
-## Control gene normalisation
+## Control window normalisation
 
-This option allows you to perform a scaling of the data based on user-specified control regions, usually these will be genomic windows corresponding to baits from control genes/regions. A one-step option is to provide these control gene locations to `control_window_normalise()` in a separate file.
+This option allows you to perform a scaling of the data based on user-specified control regions, usually these will be genomic windows corresponding to baits from control genes/regions. A one-step option is to provide these control window locations to `control_window_normalise()` in a separate file.
 
 ```{r, eval=FALSE}
-control_gene_normalised_counts <- control_window_normalise(counts, "my_controls.csv")
+control_window_normalised_counts <- control_window_normalise(counts, "my_controls.csv")
 ```
 
 The control window file should be a simple `.csv` file with header and columns `seq_name,start_pos,end_pos,bait_name`.
@@ -69,7 +69,7 @@ counts$normalised_counts <- gof_normalised_counts
 plot_counts(counts, which = "normalised_counts")
 ```
 
-## Comparing sets of potential control genes
+## Comparing sets of potential control windows
 
 To allow comparison the GoF metric of different sets of windows (e.g those determined by `get_GoF_factors()` or your own list) we can plot the distribution of 'control' windows against the rest using `plot_GoF()`, we just need a vector of names of windows to use as controls.  
 
